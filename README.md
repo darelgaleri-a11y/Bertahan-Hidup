@@ -54,3 +54,14 @@ Proyek game Godot 4.x, 2D top-down, gaya Detailed Pixel Art dengan tile dasar 16
 
 ## Batas verifikasi
 Paket diperiksa secara statis (JSON, referensi scene, integritas ZIP). Godot tidak tersedia di lingkungan pembuatan paket ini, sehingga belum ada klaim bahwa parser/runtime Godot atau perangkat Android sudah lulus pengujian. Nilai harga toko merupakan nilai uji awal.
+
+
+## Pembaruan NPC System
+- Penduduk Pedagang dan Ahli Breeding sekarang muncul di area desa.
+- Dekati NPC lalu tekan **E** untuk membaca dialog.
+- Tekan **E** sekali lagi saat masih dekat Pedagang untuk membuka toko.
+- Ahli Breeding memberikan informasi bahwa sistem breeding belum aktif.
+- Interaksi NPC diprioritaskan daripada kolam agar tombol E tidak salah menjalankan aksi.
+- Sprite NPC pixel-art 32×32 disimpan di `assets/sprites/npcs/`.
+
+Catatan: fitur breeding sebenarnya, transaksi melalui dialog pilihan, dan sistem jadwal/pergerakan NPC belum dibuat pada tahap ini.

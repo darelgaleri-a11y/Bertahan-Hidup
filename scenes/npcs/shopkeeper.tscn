@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/npcs/npc.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/npcs/shopkeeper.png" id="2"]
+
+[node name="Shopkeeper" type="Node2D"]
+script = ExtResource("1")
+npc_id = "shopkeeper"
+display_name = "Pedagang"
+greeting = "Selamat datang! Aku menjual Bibit Basic dan Pakan Basic. Tekan E lagi di dekatku untuk membuka toko."
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2")
+texture_filter = 1
+
+[node name="Nameplate" type="Label" parent="."]
+offset_left = -55.0
+offset_top = -35.0
+offset_right = 55.0
+offset_bottom = -18.0
+text = "Pedagang"
+horizontal_alignment = 1

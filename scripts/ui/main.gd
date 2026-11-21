@@ -17,6 +17,9 @@ var _shop_panel: PanelContainer
 var _shop_money: Label
 var _inventory_open := false
 var _shop_open := false
+var _last_npc_id: String = ""
+
+const NPC_INTERACTION_RANGE := 62.0
 
 const FARM_TICK_INTERVAL := 1.0
 const AUTOSAVE_INTERVAL := 30.0
@@ -56,6 +59,16 @@ func _process(delta: float) -> void:
     if _autosave_timer >= AUTOSAVE_INTERVAL:
         _autosave_timer = 0.0
         SaveManager.save_game()
+    if _last_npc_id != "":
+        var still_near_last_npc := false
+        for npc in get_tree().get_nodes_in_group("npcs"):
+            if is_instance_valid(npc) and str(npc.get("npc_id")) == _last_npc_id:
+                if player.global_position.distance_to(npc.global_position) <= NPC_INTERACTION_RANGE:
+                    still_near_last_npc = true
+                    break
+        if not still_near_last_npc:
+            _last_npc_id = ""
+
     if not bool(player.get("is_defeated")):
         if Input.is_action_just_pressed("interact"):
             _interact()
@@ -78,9 +91,25 @@ func _unhandled_input(event: InputEvent) -> void:
             get_viewport().set_input_as_handled()
 
 func _interact() -> void:
+    # NPC diprioritaskan agar interaksi tidak salah diarahkan ke kolam di dekatnya.
+    var nearest_npc: Node2D = null
+    var nearest_npc_distance := NPC_INTERACTION_RANGE
+    for npc in get_tree().get_nodes_in_group("npcs"):
+        if not is_instance_valid(npc):
+            continue
+        var npc_distance := player.global_position.distance_to(npc.global_position)
+        if npc_distance <= nearest_npc_distance:
+            nearest_npc = npc
+            nearest_npc_distance = npc_distance
+
+    if nearest_npc != null:
+        _interact_with_npc(nearest_npc)
+        return
+
+    _last_npc_id = ""
     var distance := player.global_position.distance_to(Vector2(520, 270))
     if distance > 95.0:
-        _show_message("Dekati kolam terlebih dahulu.")
+        _show_message("Dekati kolam atau penduduk terlebih dahulu.")
         return
     if FarmManager.fish_count == 0:
         if FarmManager.add_fish():
@@ -98,6 +127,24 @@ func _interact() -> void:
     else:
         _show_message("Kolam berjalan. Pakan tersisa: %d" % FarmManager.feed_count)
     _refresh()
+
+func _interact_with_npc(npc: Node2D) -> void:
+    var npc_id := str(npc.get("npc_id"))
+    var npc_name := str(npc.get("display_name"))
+    var greeting := str(npc.get("greeting"))
+
+    if npc_id != _last_npc_id:
+        _last_npc_id = npc_id
+        _show_message("%s: %s" % [npc_name, greeting])
+        return
+
+    if npc_id == "shopkeeper":
+        _toggle_shop(true)
+        _show_message("Toko dibuka. Pilih perlengkapan yang ingin dibeli.")
+    elif npc_id == "breeder":
+        _show_message("Ahli Breeding: layanan penggabungan bibit belum aktif. Fitur ini akan dibuat pada tahap Breeding System.")
+    else:
+        _show_message("%s: Senang bertemu denganmu!" % npc_name)
 
 func _attack() -> void:
     var nearest: Node2D = null

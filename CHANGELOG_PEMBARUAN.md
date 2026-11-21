@@ -40,3 +40,11 @@
 - Memperbaiki urutan panen: inventory harus menerima ikan sebelum data kolam dikosongkan.
 
 \n## Pemeriksaan Bug Tambahan\n- Memperbaiki pemuatan inventory dari save: ID item yang tidak ada di katalog dibuang, jumlah item dibatasi sesuai stack, dan jumlah slot tetap tervalidasi.\n- Data save dengan nilai jumlah item non-numerik diabaikan agar tidak merusak proses load.\n- Penyegaran daftar inventory kini menghapus node lama secara langsung sebelum membuat daftar baru, mencegah baris UI menumpuk pada beberapa refresh dalam satu frame.\n
+
+## NPC System — perbaikan dan fondasi
+- Memperbaiki baris resource NPC pada `scenes/main.tscn` yang sebelumnya tersimpan sebagai teks `\\n` literal dan dapat merusak parsing scene.
+- Menambahkan sprite Pedagang dan Ahli Breeding yang sebelumnya direferensikan scene tetapi belum tersedia.
+- NPC masuk ke group `npcs` dan dapat dikenali melalui `npc_id`.
+- Menambahkan interaksi jarak dekat: E pertama menampilkan dialog, E kedua pada Pedagang membuka toko.
+- Interaksi NPC diprioritaskan dari interaksi kolam untuk menghindari salah aksi.
+- Ahli Breeding saat ini hanya dialog/fondasi; proses breeding belum aktif.
