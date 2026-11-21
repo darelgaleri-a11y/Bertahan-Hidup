@@ -1,0 +1,20 @@
+{
+  "feed_basic": {
+    "name": "Pakan Basic",
+    "buy_price": 10,
+    "sell_price": 5,
+    "stack_limit": 99
+  },
+  "seed_basic": {
+    "name": "Bibit Basic",
+    "buy_price": 75,
+    "sell_price": 50,
+    "stack_limit": 99
+  },
+  "slime_gel": {
+    "name": "Slime Gel",
+    "buy_price": 0,
+    "sell_price": 10,
+    "stack_limit": 99
+  }
+}

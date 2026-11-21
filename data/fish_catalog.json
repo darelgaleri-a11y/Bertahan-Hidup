@@ -1,0 +1,26 @@
+{
+  "fish_basic": {
+    "name": "Lele Basic",
+    "quality": "Basic",
+    "sell_price": 20,
+    "farm_value": 10,
+    "growth_hours": 48,
+    "feed_per_day": 1
+  },
+  "fish_advanced": {
+    "name": "Lele Advanced",
+    "quality": "Advanced",
+    "sell_price": 50,
+    "farm_value": 25,
+    "growth_hours": 72,
+    "feed_per_day": 2
+  },
+  "fish_rare": {
+    "name": "Lele Rare",
+    "quality": "Rare",
+    "sell_price": 120,
+    "farm_value": 60,
+    "growth_hours": 96,
+    "feed_per_day": 3
+  }
+}

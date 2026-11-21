@@ -1,0 +1,11 @@
+{
+  "monster_slime": {
+    "name": "Slime",
+    "hp": 50,
+    "attack": 5,
+    "defense": 2,
+    "move_speed": 30,
+    "seed_drop_chance": 0.1,
+    "loot_item": "slime_gel"
+  }
+}
