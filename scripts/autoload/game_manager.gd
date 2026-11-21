@@ -8,6 +8,8 @@ var money: int = 250
 var farm_value: int = 0
 var job_level: int = 1
 
+const JOB_THRESHOLDS := [0, 100, 300, 650, 1100, 1800, 2800, 4200, 6000, 8500]
+
 func add_money(amount: int) -> void:
     if amount <= 0:
         return
@@ -15,7 +17,7 @@ func add_money(amount: int) -> void:
     money_changed.emit(money)
 
 func spend_money(amount: int) -> bool:
-    if amount < 0 or money < amount:
+    if amount <= 0 or money < amount:
         return false
     money -= amount
     money_changed.emit(money)
@@ -28,12 +30,14 @@ func add_farm_value(amount: int) -> void:
     _update_job_level()
     farm_value_changed.emit(farm_value)
 
-func _update_job_level() -> void:
-    var thresholds := [0, 100, 300, 650, 1100, 1800, 2800, 4200, 6000, 8500]
-    var new_level := 1
-    for i in range(thresholds.size()):
-        if farm_value >= thresholds[i]:
-            new_level = i + 1
-    if new_level > job_level:
-        job_level = new_level
+func recalculate_progression() -> void:
+    var previous_level := job_level
+    job_level = 1
+    for i in range(JOB_THRESHOLDS.size()):
+        if farm_value >= JOB_THRESHOLDS[i]:
+            job_level = i + 1
+    if job_level > previous_level:
         notification_requested.emit("Job Level naik menjadi %d!" % job_level)
+
+func _update_job_level() -> void:
+    recalculate_progression()

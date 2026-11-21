@@ -3,12 +3,12 @@ extends Node
 const SAVE_PATH := "user://savegame.json"
 const TEMP_PATH := "user://savegame.json.tmp"
 const BACKUP_PATH := "user://savegame_backup.json"
+const SAVE_VERSION := 3
 
 func save_game() -> bool:
-    # Hitung pertumbuhan sampai detik penyimpanan agar tidak ada waktu yang hilang.
     FarmManager.update_offline()
     var payload := {
-        "version": 2,
+        "version": SAVE_VERSION,
         "saved_at": int(Time.get_unix_time_from_system()),
         "money": GameManager.money,
         "farm_value": GameManager.farm_value,
@@ -27,6 +27,7 @@ func save_game() -> bool:
     file.close()
     if write_error != OK:
         push_error("Gagal menulis data save game.")
+        DirAccess.remove_absolute(ProjectSettings.globalize_path(TEMP_PATH))
         return false
 
     var save_absolute := ProjectSettings.globalize_path(SAVE_PATH)
@@ -39,20 +40,18 @@ func save_game() -> bool:
             DirAccess.remove_absolute(backup_absolute)
         var backup_error := DirAccess.copy_absolute(save_absolute, backup_absolute)
         if backup_error != OK:
-            push_error("Gagal membuat backup save game.")
+            push_error("Gagal membuat backup save game; save lama tidak diubah.")
             DirAccess.remove_absolute(temp_absolute)
             return false
-
-    if had_save:
         var remove_error := DirAccess.remove_absolute(save_absolute)
         if remove_error != OK:
-            push_error("Gagal menyiapkan file save lama untuk diganti.")
+            push_error("Gagal mengganti save lama; backup tetap tersedia.")
             DirAccess.remove_absolute(temp_absolute)
             return false
 
     var replace_error := DirAccess.rename_absolute(temp_absolute, save_absolute)
     if replace_error != OK:
-        push_error("Gagal mengganti file save. Mencoba memulihkan backup.")
+        push_error("Gagal mengganti save. Mencoba memulihkan backup.")
         DirAccess.remove_absolute(temp_absolute)
         if had_save and FileAccess.file_exists(BACKUP_PATH):
             DirAccess.copy_absolute(backup_absolute, save_absolute)
@@ -69,6 +68,10 @@ func _read_save_file(path: String) -> Dictionary:
     file.close()
     if typeof(parsed) != TYPE_DICTIONARY:
         return {}
+    if not parsed.has("money") or not parsed.has("inventory") or not parsed.has("pond"):
+        return {}
+    if typeof(parsed.get("inventory")) != TYPE_DICTIONARY or typeof(parsed.get("pond")) != TYPE_DICTIONARY:
+        return {}
     return parsed
 
 func load_game() -> bool:
@@ -80,15 +83,20 @@ func load_game() -> bool:
     if parsed.is_empty():
         return false
 
-    GameManager.money = int(parsed.get("money", 250))
-    GameManager.farm_value = int(parsed.get("farm_value", 0))
-    GameManager.job_level = int(parsed.get("job_level", 1))
-    var saved_inventory = parsed.get("inventory", {})
-    if typeof(saved_inventory) == TYPE_DICTIONARY:
-        InventoryManager.items = saved_inventory
-    var saved_pond = parsed.get("pond", {})
-    if typeof(saved_pond) == TYPE_DICTIONARY:
-        FarmManager.load_save_data(saved_pond)
+    GameManager.money = maxi(0, int(parsed.get("money", 250)))
+    GameManager.farm_value = maxi(0, int(parsed.get("farm_value", 0)))
+    GameManager.job_level = maxi(1, int(parsed.get("job_level", 1)))
+    GameManager.recalculate_progression()
+
+    InventoryManager.items = {}
+    var saved_inventory: Dictionary = parsed.get("inventory", {})
+    for item_id in saved_inventory.keys():
+        var amount := maxi(0, int(saved_inventory[item_id]))
+        if amount > 0:
+            InventoryManager.items[str(item_id)] = amount
+
+    var saved_pond: Dictionary = parsed.get("pond", {})
+    FarmManager.load_save_data(saved_pond)
 
     GameManager.money_changed.emit(GameManager.money)
     GameManager.farm_value_changed.emit(GameManager.farm_value)

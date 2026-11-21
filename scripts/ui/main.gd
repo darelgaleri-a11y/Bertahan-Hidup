@@ -46,11 +46,11 @@ func _process(delta: float) -> void:
         _autosave_timer = 0.0
         SaveManager.save_game()
 
-    if Input.is_action_just_pressed("interact"):
-        _interact()
-    if Input.is_action_just_pressed("attack"):
-        _attack()
-
+    if not bool(player.get("is_defeated")):
+        if Input.is_action_just_pressed("interact"):
+            _interact()
+        if Input.is_action_just_pressed("attack"):
+            _attack()
 
 func _create_mobile_controls() -> void:
     if not OS.has_feature("mobile") and not DisplayServer.is_touchscreen_available():
@@ -90,13 +90,13 @@ func _interact() -> void:
 
     if FarmManager.fish_count == 0:
         if FarmManager.add_fish():
-            _show_message("Bibit Basic dimasukkan ke kolam.")
+            _show_message("Bibit Basic dimasukkan. Tambahkan pakan untuk memulai pertumbuhan.")
         else:
             _show_message("Tidak ada bibit Basic di inventory.")
     elif FarmManager.fish_ready:
         if FarmManager.harvest():
             _show_message("Panen berhasil! Ikan masuk inventory.")
-    elif FarmManager.feed_count < 2:
+    elif FarmManager.feed_count == 0:
         if FarmManager.add_feed():
             _show_message("Pakan ditambahkan ke kolam.")
         else:
@@ -141,18 +141,15 @@ func _on_player_defeated() -> void:
     _show_message("Kamu kalah! Pemain akan pulih kembali.")
     await get_tree().create_timer(1.5).timeout
     if not is_instance_valid(player):
+        _is_respawning = false
         return
-    var maximum_health := int(player.get("max_health"))
-    player.set("health", maximum_health)
-    player.global_position = PLAYER_START_POSITION
-    player.emit_signal("health_changed", maximum_health, maximum_health)
+    player.call("restore_after_defeat", PLAYER_START_POSITION)
     _show_message("Pemain pulih. Hati-hati terhadap monster!")
     _is_respawning = false
 
 func _refresh() -> void:
-    info_label.text = "Kolam: %d/%d ikan | Pakan: %d | Progres: %d%% | Siap panen: %s" % [
+    info_label.text = "Kolam: %d/10 ikan | Pakan: %d | Progres: %d%% | Siap panen: %s" % [
         FarmManager.fish_count,
-        10,
         FarmManager.feed_count,
         int(FarmManager.growth_progress * 100.0),
         "Ya" if FarmManager.fish_ready else "Belum"
@@ -167,6 +164,7 @@ func _show_message(message: String) -> void:
     message_label.text = message
 
 func _notification(what: int) -> void:
-    if what == NOTIFICATION_WM_CLOSE_REQUEST:
+    if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
         SaveManager.save_game()
-        get_tree().quit()
+        if what == NOTIFICATION_WM_CLOSE_REQUEST:
+            get_tree().quit()
