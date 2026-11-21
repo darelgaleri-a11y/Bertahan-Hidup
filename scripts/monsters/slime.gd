@@ -36,6 +36,11 @@ func _physics_process(delta: float) -> void:
         move_and_slide()
         return
 
+    if bool(player.get("is_defeated")):
+        velocity = Vector2.ZERO
+        move_and_slide()
+        return
+
     var distance := global_position.distance_to(player.global_position)
     if distance <= detection_range and distance > attack_range:
         velocity = global_position.direction_to(player.global_position) * move_speed
@@ -56,6 +61,8 @@ func take_damage(amount: int) -> void:
         _die()
 
 func _die() -> void:
+    if _dead:
+        return
     _dead = true
     velocity = Vector2.ZERO
     var minimum_drop := mini(material_drop_min, material_drop_max)
@@ -77,7 +84,8 @@ func _die() -> void:
             summary_parts.append("Bibit Basic x1 (Peti Loot)")
 
     var summary := " + ".join(summary_parts)
-    QuestManager.record_event("monster_kill", "slime", 1)
+    # ID harus sama dengan QuestManager.QUESTS["slime_hunter"].target_id.
+    QuestManager.record_event("monster_kill", "monster_slime", 1)
 
     # Sesuai ketetapan progresi game: monster tidak memberi EXP.
     defeated.emit(summary)

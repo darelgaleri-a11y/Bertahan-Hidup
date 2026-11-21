@@ -6,25 +6,25 @@ const RECIPES := {
     "seed_basic": {
         "output": "seed_advanced",
         "fee": 100,
-        "chance": 0.90,
+        "chance": 1.00,
         "label": "Basic → Advanced"
     },
     "seed_advanced": {
         "output": "seed_rare",
         "fee": 250,
-        "chance": 0.75,
+        "chance": 0.90,
         "label": "Advanced → Rare"
     },
     "seed_rare": {
         "output": "seed_epic",
         "fee": 500,
-        "chance": 0.60,
+        "chance": 0.75,
         "label": "Rare → Epic"
     },
     "seed_epic": {
         "output": "seed_legendary",
         "fee": 1000,
-        "chance": 0.40,
+        "chance": 0.60,
         "label": "Epic → Legendary"
     }
 }
