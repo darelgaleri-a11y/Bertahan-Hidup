@@ -177,6 +177,11 @@ func _unhandled_input(event: InputEvent) -> void:
             get_viewport().set_input_as_handled()
 
 func _interact() -> void:
+    # Aktivitas ekonomi dan NPC properti hanya tersedia di Desa.
+    if RegionManager.current_region_id != "village":
+        _last_npc_id = ""
+        _show_message("Fasilitas Desa tidak tersedia di wilayah ini. Kembali ke Desa untuk mengelolanya.")
+        return
     # NPC diprioritaskan agar interaksi tidak salah diarahkan ke kolam di dekatnya.
     var nearest_npc: Node2D = null
     var nearest_npc_distance := NPC_INTERACTION_RANGE
@@ -273,18 +278,35 @@ func _schedule_monster_respawn(scene_path: String, spawn_position: Vector2, mons
     if monster_scene == null:
         push_error("Scene monster gagal dimuat untuk respawn: " + scene_path)
         return
+
     var monster_region := _get_region_for_monster_scene(scene_path)
+    # Setiap scene monster hanya boleh memiliki satu respawn tertunda.
+    # Ini mencegah antrean berlipat saat pemain bolak-balik antarwilayah.
+    for pending in _pending_monster_respawns:
+        if str(pending.get("scene_path", "")) == scene_path:
+            return
+    if _has_live_monster_scene(scene_path):
+        return
+
     if monster_region == RegionManager.current_region_id:
         _spawn_respawned_monster(monster_scene, spawn_position)
     else:
-        # Jangan menunggu signal tanpa batas pada coroutine. Simpan sebagai antrean;
-        # monster akan dibuat ketika wilayah asalnya kembali aktif.
         _pending_monster_respawns.append({
             "scene": monster_scene,
+            "scene_path": scene_path,
             "position": spawn_position,
             "region_id": monster_region,
             "monster_name": monster_name
         })
+
+func _has_live_monster_scene(scene_path: String) -> bool:
+    for monster in get_tree().get_nodes_in_group("monster_entities"):
+        if not is_instance_valid(monster):
+            continue
+        var monster_scene_path := str(monster.get("scene_file_path"))
+        if monster_scene_path == scene_path and not bool(monster.get("_dead")):
+            return true
+    return false
 
 func _spawn_respawned_monster(monster_scene: PackedScene, spawn_position: Vector2) -> void:
     var new_monster := monster_scene.instantiate()
@@ -299,7 +321,8 @@ func _process_pending_monster_respawns() -> void:
             continue
         var monster_scene := pending.get("scene") as PackedScene
         var spawn_position: Vector2 = pending.get("position", Vector2(380, 270))
-        if monster_scene != null:
+        var scene_path := str(pending.get("scene_path", ""))
+        if monster_scene != null and not _has_live_monster_scene(scene_path):
             _spawn_respawned_monster(monster_scene, spawn_position)
         _pending_monster_respawns.remove_at(i)
 

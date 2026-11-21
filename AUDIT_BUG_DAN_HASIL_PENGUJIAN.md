@@ -1,21 +1,19 @@
-# Audit Bug & Stability Update — v7
+# Audit Bug & Hasil Pemeriksaan — Bertahan Hidup v9
 
-## Repository inspected
-- https://github.com/darelgaleri-a11y/Bertahan-Hidup
-- Branch: main
-- Source tree inspected before creating this patch.
+## Basis pemeriksaan
+Repository: https://github.com/darelgaleri-a11y/Bertahan-Hidup (branch main), diperiksa 22 November 2026.
 
-## Fixes in this update
-1. Monster respawn no longer waits indefinitely on a region-change signal. A due respawn is queued and spawned when its home region becomes active.
-2. Respawn placement is performed through a single helper, with signal hookup before the node enters the SceneTree.
-3. Player defeat recovery uses the current exploration region spawn, not a property-land spawn.
-4. NPC scenes explicitly declare their home region as village, avoiding reliance on an implicit script default.
-5. Monster Job Level gates now match the region progression: Skeleton requires Job Level 3; Elite Beast requires Job Level 5.
+## Bug yang diperbaiki pada patch ini
+1. Fasilitas Desa (NPC toko, breeding, pengelola lahan, papan misi, serta kolam) masih dapat dicoba saat pemain berada di wilayah lain. Sekarang interaksi dunia/fasilitas dibatasi ke wilayah Desa; perintah untuk kembali ke Desa ditampilkan.
+2. Monster yang mengejar pemain dapat menjauh jauh dari titik spawn dan kemudian respawn pada koordinat kematiannya. Sekarang posisi rumah monster direkam saat dibuat dan dipakai sebagai titik respawn.
+3. Monster dapat meninggalkan area asalnya saat mengejar pemain. Sekarang pengejaran dibatasi terhadap radius dari titik rumah monster agar monster tidak berkeliaran tanpa batas.
+4. Pemeriksaan respawn dirapikan agar hanya menganggap instance hidup sebagai alasan menolak pembuatan monster baru; pemeriksaan menggunakan path scene yang sama.
 
-## Static checks
-- JSON catalog parse and resource path checks were run for this patch.
-- Scene resource counts and NPC/monster region-level declarations were checked.
-- ZIP archive integrity was checked.
+## Pemeriksaan sumber proyek
+- RegionManager menyediakan Desa, Hutan, Gua, Zona Bahaya dengan syarat Job Level 1, 1, 3, dan 5.
+- Monster dan NPC menggunakan `region_id` untuk membatasi kehadiran sesuai wilayah.
+- Save/load menyimpan wilayah aktif dan fallback ke Desa jika data tidak valid atau wilayah belum terbuka.
+- Loot, quest kill, serta koneksi sinyal monster tetap menggunakan sistem sebelumnya.
 
-## Not verified
-Godot Engine was not available in this environment. GDScript parsing inside Godot, scene runtime, gameplay, and Android builds must still be tested in Godot Editor/device.
+## Batas pengujian
+ZIP diverifikasi integritasnya dan file patch diperiksa secara statis. Godot Engine tidak tersedia di lingkungan pembuatan paket; parser GDScript, runtime scene, gameplay sesungguhnya, dan build Android belum dapat dinyatakan lulus. Pengujian manual tetap diperlukan setelah paket dipasang.

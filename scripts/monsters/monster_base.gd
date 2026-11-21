@@ -24,9 +24,11 @@ var player: CharacterBody2D
 var _attack_timer: float = 0.0
 var _dead: bool = false
 var _unlocked: bool = false
+var _home_position: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
     health = maxi(1, max_health)
+    _home_position = global_position
     # Semua monster didaftarkan agar sinyal defeated terhubung meskipun
     # monster sedang terkunci atau berada di wilayah lain.
     add_to_group("monster_entities")
@@ -54,6 +56,9 @@ func _sync_region_presence() -> void:
     collision_layer = 2 if is_active else 0
     collision_mask = 1 if is_active else 0
     set_physics_process(is_active)
+    # _process tetap aktif untuk mendeteksi kenaikan Job Level ketika monster
+    # berada di wilayah lain; hanya _physics_process yang mengikuti wilayah aktif.
+    set_process(true)
     if is_active:
         if not is_in_group("monsters"):
             add_to_group("monsters")
@@ -74,7 +79,10 @@ func _physics_process(delta: float) -> void:
         move_and_slide()
         return
     var distance := global_position.distance_to(player.global_position)
-    if distance <= detection_range and distance > attack_range:
+    var distance_from_home := global_position.distance_to(_home_position)
+    var target_is_near := distance <= detection_range
+    var has_room_to_chase := distance_from_home < detection_range
+    if target_is_near and distance > attack_range and has_room_to_chase:
         velocity = global_position.direction_to(player.global_position) * move_speed
     else:
         velocity = Vector2.ZERO
@@ -115,7 +123,7 @@ func _die() -> void:
             LootManager.store_loot("seed_basic", 1)
             summary_parts.append("Bibit Basic x1 (Peti Loot)")
     QuestManager.record_event("monster_kill", monster_id, 1)
-    defeated.emit(monster_id, monster_name, " + ".join(summary_parts), global_position, scene_file_path)
+    defeated.emit(monster_id, monster_name, " + ".join(summary_parts), _home_position, scene_file_path)
     queue_free()
 
 func _get_item_name(item_id: String) -> String:
