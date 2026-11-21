@@ -1,0 +1,87 @@
+{
+  "asset_pack": "Bertahan Hidup - Asset 011 Region Environment",
+  "visual_style": "Detailed Pixel Art",
+  "base_tile_size": [
+    16,
+    16
+  ],
+  "object_cell_size": [
+    32,
+    32
+  ],
+  "regions": {
+    "village": {
+      "ground_sheet": "assets/tiles/region/village_ground_16px.png",
+      "theme": "rumput desa"
+    },
+    "forest": {
+      "ground_sheet": "assets/tiles/region/forest_ground_16px.png",
+      "theme": "tanah hutan"
+    },
+    "cave": {
+      "ground_sheet": "assets/tiles/region/cave_ground_16px.png",
+      "theme": "batu gua"
+    },
+    "danger_zone": {
+      "ground_sheet": "assets/tiles/region/danger_zone_ground_16px.png",
+      "theme": "tanah zona bahaya"
+    }
+  },
+  "environment_objects": {
+    "sheet": "assets/sprites/environment/environment_objects_32px.png",
+    "cell_size": [
+      32,
+      32
+    ],
+    "cells": {
+      "tree": [
+        0,
+        0
+      ],
+      "pine_tree": [
+        32,
+        0
+      ],
+      "bush": [
+        64,
+        0
+      ],
+      "rock": [
+        96,
+        0
+      ],
+      "cave_crystal": [
+        0,
+        32
+      ],
+      "dead_tree": [
+        32,
+        32
+      ],
+      "mushroom": [
+        64,
+        32
+      ],
+      "hazard_crystal": [
+        96,
+        32
+      ]
+    }
+  },
+  "godot_import": {
+    "texture_filter": "Nearest",
+    "mipmaps": false,
+    "recommended_scale": 3,
+    "atlas_tile_size": [
+      16,
+      16
+    ]
+  },
+  "tileset_resources": {
+    "village": "assets/tiles/region/village_ground_tileset.tres",
+    "forest": "assets/tiles/region/forest_ground_tileset.tres",
+    "cave": "assets/tiles/region/cave_ground_tileset.tres",
+    "danger_zone": "assets/tiles/region/danger_zone_ground_tileset.tres",
+    "environment_objects": "assets/sprites/environment/environment_objects_tileset.tres"
+  }
+}

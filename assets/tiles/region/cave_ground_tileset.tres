@@ -1,0 +1,27 @@
+[gd_resource type="TileSet" load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/tiles/region/cave_ground_16px.png" id="3"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cave"]
+texture = ExtResource("3")
+texture_region_size = Vector2i(16, 16)
+0:0/0 = 0
+0:16/0 = 0
+0:32/0 = 0
+0:48/0 = 0
+0:0/16 = 0
+0:16/16 = 0
+0:32/16 = 0
+0:48/16 = 0
+0:0/32 = 0
+0:16/32 = 0
+0:32/32 = 0
+0:48/32 = 0
+0:0/48 = 0
+0:16/48 = 0
+0:32/48 = 0
+0:48/48 = 0
+
+[resource]
+tile_size = Vector2i(16, 16)
+sources/0 = SubResource("TileSetAtlasSource_cave")
