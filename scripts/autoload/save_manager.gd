@@ -77,7 +77,7 @@ func _read_save_file(path: String) -> Dictionary:
     if typeof(parsed.get("inventory")) != TYPE_DICTIONARY or typeof(parsed.get("pond")) != TYPE_DICTIONARY:
         return {}
     var save_version = parsed.get("version", 1)
-    if (typeof(save_version) != TYPE_INT and typeof(save_version) != TYPE_FLOAT):
+    if typeof(save_version) != TYPE_INT and typeof(save_version) != TYPE_FLOAT:
         return {}
     if int(save_version) < 1 or int(save_version) > SAVE_VERSION:
         return {}
