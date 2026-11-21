@@ -1,49 +1,56 @@
-# Bertahan Hidup — Paket Update Kontrol Android & Save System
+# Bertahan Hidup — Shop System Update
 
-Proyek game 2D top-down Godot 4.x dengan gaya Detailed Pixel Art dan tile dasar 16×16.
-Paket ZIP ini berisi **seluruh proyek beserta asset**, bukan hanya file pengganti.
+Proyek game Godot 4.x, 2D top-down, gaya Detailed Pixel Art dengan tile dasar 16×16.
 
-## Cara menjalankan
-1. Unduh dan ekstrak ZIP.
+## Fitur dalam paket
+- Player movement, kontrol keyboard dan tombol sentuh dasar.
+- HUD HP, Money, Job Level, Farm Value, dan status kolam.
+- Sistem kolam: bibit, pakan, pertumbuhan, panen, dan perhitungan offline.
+- Save/load JSON dengan backup.
+- Slime AI, combat, material loot, dan peluang drop bibit.
+- Inventory: 30 slot, stack 99, daftar item, dan penjualan satuan.
+- Shop: pembelian Bibit Basic dan Pakan Basic.
+- Proteksi transaksi: uang hanya dipotong setelah validasi kapasitas dan item.
+- Proteksi panen: hasil ikan masuk inventory terlebih dahulu; kolam tidak dikosongkan jika inventory tidak mampu menampung.
+
+## Menjalankan
+1. Ekstrak ZIP.
 2. Buka Godot 4.3 atau Godot 4.x yang kompatibel.
-3. Pada Project Manager pilih **Import**.
-4. Pilih file `project.godot` dari folder hasil ekstrak.
-5. Buka proyek, tunggu proses import asset selesai, lalu tekan **F6** untuk menjalankan scene utama atau **F5** untuk menjalankan proyek.
+3. Project Manager → Import.
+4. Pilih `project.godot` di folder `Bertahan_Hidup_Godot`.
+5. Tunggu import, lalu tekan F5.
 
 ## Kontrol
-### Keyboard
-- WASD / tombol panah: bergerak.
-- E: interaksi dengan kolam.
-- J atau Space: menyerang Slime saat berada dalam jangkauan.
-
-### Layar sentuh
-Pada perangkat Android/layar sentuh akan muncul tombol arah, INTERAKSI, dan SERANG.
+- WASD / panah: bergerak.
+- E: interaksi kolam (dekat kolam).
+- J / Space: serang Slime.
+- I: buka/tutup inventory.
+- B: buka/tutup toko.
+- Escape: tutup panel yang sedang terbuka.
+- Android: tombol TAS dan TOKO serta kontrol sentuh gerakan/interaksi/serang.
 
 ## Hasil yang diharapkan
-- Game berjalan dalam orientasi landscape.
-- Pemain dapat bergerak menggunakan keyboard atau tombol sentuh.
-- Dekati kolam dan tekan E/INTERAKSI untuk memasukkan bibit, menambah pakan, atau memanen sesuai kondisi kolam.
-- Pertumbuhan ikan berlangsung sampai 48 jam waktu yang didukung pakan. Sisa waktu pakan dihitung dalam detik, sehingga waktu parsial tidak hilang saat game ditutup.
-- Dekati Slime dan tekan J/Space atau SERANG. Serangan pemain memberikan 25 damage; Slime memiliki 50 HP.
-- Slime menyerang pemain, dan ketika dikalahkan menjatuhkan 1–2 Slime Gel serta peluang 10% bibit Basic. Monster tidak memberikan EXP.
-- HUD menampilkan Money, Job Level, Farm Value, progres kolam, dan HP pemain.
-- Save otomatis setiap 30 detik dan ketika aplikasi ditutup. Backup save dibuat sebelum file utama diganti.
+- Tekan B, toko tampil dengan Bibit Basic (75 Money) dan Pakan Basic (10 Money).
+- Membeli item mengurangi Money dan menambah jumlah item.
+- Pembelian gagal tanpa mengurangi Money jika uang kurang atau inventory penuh.
+- Tekan I untuk melihat item; tombol Jual menjual satu item dan menambah Money.
+- Panen menambahkan Ikan Basic ke inventory; jika gagal ditampung, ikan tetap di kolam.
+- Save otomatis tetap menyimpan uang, inventory, dan kondisi kolam.
 
-## Checklist perkembangan dan pengujian
-- [x] Struktur proyek Godot dan asset dasar tersedia.
-- [x] Karakter pemain dan pergerakan keyboard.
-- [x] Slime dengan AI mengejar dan menyerang.
-- [x] Serangan pemain dan loot dasar Slime.
-- [x] Kolam, bibit, pakan, pertumbuhan, dan panen dasar.
-- [x] HUD dasar: uang, progres kolam, Job Level/Farm Value, dan HP.
-- [x] Save/load JSON, autosave, dan backup dasar.
-- [x] Perhitungan sisa pakan per detik dan kompatibilitas save lama.
-- [x] Konfigurasi aksi serang dipindahkan ke Input Map yang benar.
-- [x] Kontrol sentuh virtual untuk Android.
-- [x] Orientasi landscape.
-- [ ] Uji parser dan jalankan proyek di Godot 4.x pada perangkat/komputer.
-- [ ] Uji seluruh alur farming, combat, save/load, dan kontrol sentuh secara langsung.
-- [ ] Implementasi sistem inventory UI, toko, NPC, quest, skill, dan area dunia lanjutan.
+## Checklist perkembangan
+- [x] Struktur proyek dan asset dasar pixel art.
+- [x] Gerakan pemain dan kontrol sentuh dasar.
+- [x] HUD dan status HP.
+- [x] Kolam, pakan, pertumbuhan, panen, Farm Value.
+- [x] Save/load dan backup.
+- [x] Slime AI, combat, loot material dan peluang bibit.
+- [x] Inventory UI, kapasitas slot, stack, jumlah item.
+- [x] Penjualan item dari inventory.
+- [x] Shop pembelian Bibit Basic dan Pakan Basic.
+- [ ] Pengujian runtime Godot dan Android.
+- [ ] NPC toko fisik, breeding, quest, equipment, skills.
+- [ ] Dunia desa/hutan/gua lengkap, audio, tutorial, UI final.
+- [ ] Build APK dan uji performa perangkat.
 
-## Catatan verifikasi
-Checklist `[x]` berarti fitur sudah tersedia di source code paket. Checklist tersebut **bukan** klaim bahwa fitur telah lulus pengujian runtime. Lingkungan pembuatan paket ini tidak menyediakan Godot Engine, sehingga parser Godot dan gameplay belum dapat dijalankan di sini. Mohon nilai hasil aktual dari pengujian setelah proyek dibuka di Godot.
+## Batas verifikasi
+Paket diperiksa secara statis (JSON, referensi scene, integritas ZIP). Godot tidak tersedia di lingkungan pembuatan paket ini, sehingga belum ada klaim bahwa parser/runtime Godot atau perangkat Android sudah lulus pengujian. Nilai harga toko merupakan nilai uji awal.

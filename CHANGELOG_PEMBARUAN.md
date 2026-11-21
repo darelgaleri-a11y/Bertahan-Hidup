@@ -1,17 +1,42 @@
-# Changelog — Farming & Player HUD
+# Changelog — Perbaikan Bug & Stabilitas
 
-- Mengganti hitungan konsumsi pakan per hari penuh menjadi hitungan detik aktif.
-- Menyimpan sisa detik pakan agar progres parsial tidak hilang saat game ditutup.
-- Mendukung data save lama yang hanya memiliki `feed_count`.
-- Membatasi progres pertumbuhan pada 0–100% dan pakan tidak menjadi negatif.
-- Menambahkan tampilan HP pemain pada HUD.
-- Menambahkan pemulihan pemain di posisi awal setelah HP mencapai nol.
-- Mempertahankan AI Slime, serangan, dan loot dari pembaruan sebelumnya.
+## Farming
+- Menghilangkan pakan gratis yang sebelumnya otomatis diberikan setiap kali bibit ditebar.
+- Pertumbuhan hanya berjalan jika ikan dan waktu pakan tersedia.
+- Sisa waktu pakan disimpan dalam detik dan kompatibel dengan save lama yang hanya memiliki `feed_count`.
+- Data kolam divalidasi agar jumlah ikan, progres, dan status siap panen tetap konsisten.
+- Pakan berlebih tidak lagi terbuang saat panen; waktu pertumbuhan yang dibutuhkan saja yang dikonsumsi.
+- Interaksi tidak memaksa menambah pakan ketika sisa pakan masih mencukupi.
 
-## Update kontrol Android dan penyimpanan
-- Memindahkan konfigurasi aksi `attack` ke bagian `[input]` agar tombol J/Space terdaftar sebagai input game, bukan salah dibaca sebagai autoload.
-- Menambahkan tombol sentuh virtual untuk arah, interaksi, dan serangan pada perangkat layar sentuh.
-- Mengatur orientasi perangkat ke landscape sesuai keputusan desain game.
-- Penyimpanan kini memperbarui simulasi kolam tepat sebelum membuat save.
-- Jika save utama rusak/tidak valid, game mencoba membaca backup; proses penggantian save juga memulihkan backup jika gagal.
-- Memindahkan pesan status ke bagian bawah-tengah agar tidak menutupi kontrol sentuh.
+## Player & Combat
+- Pemain berhenti bergerak saat HP mencapai nol.
+- Pemain tidak dapat menerima damage berulang selama kondisi kalah.
+- Respawn menggunakan fungsi khusus yang memulihkan HP, posisi, dan status pemain secara konsisten.
+- Input interaksi/serangan diabaikan ketika pemain sedang kalah.
+
+## Save & Progression
+- Save versi 3 memvalidasi struktur JSON dan inventory sebelum dipakai.
+- Jika save utama rusak, sistem mencoba membaca backup.
+- Job Level dihitung ulang dari Farm Value saat memuat save.
+- Save dipanggil saat aplikasi mobile dijeda, selain autosave dan penutupan jendela.
+
+## Verifikasi
+- Pemeriksaan statis dan pemeriksaan isi paket dilakukan.
+- Pengujian runtime Godot belum dapat dilakukan pada lingkungan pembuatan paket.
+
+## Inventory System Update
+- InventoryManager memuat katalog item, memvalidasi item, menerapkan batas 30 slot dan batas stack.
+- Inventory UI dapat dibuka dengan tombol I, ditutup dengan Escape/tombol TUTUP, serta memiliki tombol TAS untuk layar sentuh.
+- Item dengan harga jual dapat dijual satu per satu dan menambah Money.
+- Ikan hasil panen masuk inventory sebagai Ikan Basic.
+- Panen sekarang memeriksa kapasitas inventory terlebih dahulu; bila penuh, hasil ikan tidak hilang dan proses panen ditolak.
+- Katalog menambahkan Ikan Basic dengan harga jual uji 25 Money.
+
+## Shop System Update
+- Menambahkan panel toko yang dapat dibuka dengan B atau tombol TOKO di layar sentuh.
+- Toko menjual Bibit Basic (75 Money) dan Pakan Basic (10 Money).
+- Menambahkan validasi saldo, kapasitas slot, dan batas stack sebelum transaksi.
+- Menambahkan penjualan item satuan dari panel inventory.
+- Memperbaiki urutan panen: inventory harus menerima ikan sebelum data kolam dikosongkan.
+
+\n## Pemeriksaan Bug Tambahan\n- Memperbaiki pemuatan inventory dari save: ID item yang tidak ada di katalog dibuang, jumlah item dibatasi sesuai stack, dan jumlah slot tetap tervalidasi.\n- Data save dengan nilai jumlah item non-numerik diabaikan agar tidak merusak proses load.\n- Penyegaran daftar inventory kini menghapus node lama secara langsung sebelum membuat daftar baru, mencegah baris UI menumpuk pada beberapa refresh dalam satu frame.\n

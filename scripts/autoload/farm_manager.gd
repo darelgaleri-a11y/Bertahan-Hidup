@@ -65,13 +65,16 @@ func harvest() -> bool:
         return false
 
     var amount := fish_count
+    # Jangan mengosongkan kolam sebelum inventory memastikan hasil panen dapat ditampung.
+    if not InventoryManager.add_item("fish_basic", amount):
+        GameManager.notification_requested.emit("Inventory penuh atau stack ikan tidak cukup. Kosongkan inventory sebelum panen.")
+        return false
     fish_count = 0
     fish_ready = false
     growth_progress = 0.0
     # Sisa pakan dipertahankan untuk siklus ikan berikutnya.
 
     GameManager.add_farm_value(10 * amount)
-    InventoryManager.add_item("fish_basic", amount)
     last_update_unix = int(Time.get_unix_time_from_system())
     pond_changed.emit()
     return true

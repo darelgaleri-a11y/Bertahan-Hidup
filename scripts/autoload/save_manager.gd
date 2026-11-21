@@ -91,9 +91,13 @@ func load_game() -> bool:
     InventoryManager.items = {}
     var saved_inventory: Dictionary = parsed.get("inventory", {})
     for item_id in saved_inventory.keys():
-        var amount := maxi(0, int(saved_inventory[item_id]))
-        if amount > 0:
-            InventoryManager.items[str(item_id)] = amount
+        var raw_amount = saved_inventory[item_id]
+        # Abaikan data item yang rusak/non-numerik dan biarkan katalog memvalidasi ID.
+        if typeof(raw_amount) == TYPE_INT or typeof(raw_amount) == TYPE_FLOAT:
+            var amount := maxi(0, int(raw_amount))
+            if amount > 0:
+                InventoryManager.items[str(item_id)] = amount
+    InventoryManager.sanitize_inventory()
 
     var saved_pond: Dictionary = parsed.get("pond", {})
     FarmManager.load_save_data(saved_pond)

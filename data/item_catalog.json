@@ -16,5 +16,11 @@
     "buy_price": 0,
     "sell_price": 10,
     "stack_limit": 99
+  },
+  "fish_basic": {
+    "name": "Ikan Basic",
+    "buy_price": 0,
+    "sell_price": 25,
+    "stack_limit": 99
   }
 }
