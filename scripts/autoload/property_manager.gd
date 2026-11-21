@@ -138,10 +138,19 @@ func load_save_data(data: Dictionary) -> void:
         initialize_if_needed()
         return
     var records = data.get("land_records", {})
-    land_records = records if typeof(records) == TYPE_DICTIONARY else {}
-    for land_id in land_catalog.keys():
-        if not land_records.has(land_id):
-            land_records[land_id] = {"status": "locked", "rent_end_unix": 0, "ever_unlocked": false}
+    var raw_records: Dictionary = records if typeof(records) == TYPE_DICTIONARY else {}
+    land_records.clear()
+    for land_id_value in land_catalog.keys():
+        var land_id := str(land_id_value)
+        var raw_record = raw_records.get(land_id, {})
+        var record: Dictionary = raw_record if typeof(raw_record) == TYPE_DICTIONARY else {}
+        var raw_status := str(record.get("status", "locked"))
+        var safe_status := raw_status if raw_status in ["locked", "rented", "owned"] else "locked"
+        land_records[land_id] = {
+            "status": safe_status,
+            "rent_end_unix": maxi(0, int(record.get("rent_end_unix", 0))),
+            "ever_unlocked": bool(record.get("ever_unlocked", safe_status != "locked"))
+        }
     var saved_current := str(data.get("current_land_id", "village"))
     current_land_id = saved_current if land_catalog.has(saved_current) else "village"
     if not can_access(current_land_id):

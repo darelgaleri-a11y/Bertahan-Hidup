@@ -1,4 +1,4 @@
-# Bertahan Hidup — Shop System Update
+# Bertahan Hidup — Quest & Bugfix Update
 
 Proyek game Godot 4.x, 2D top-down, gaya Detailed Pixel Art dengan tile dasar 16×16.
 
@@ -114,3 +114,46 @@ File JSON, referensi resource `res://`, dan integritas ZIP diperiksa secara otom
 - Saat pindah, NPC berjalan membawa gerobak barang menuju lokasi baru. Data kolam tetap dipertahankan.
 - Status lahan, kepemilikan, masa sewa, dan lokasi aktif disimpan dalam save game.
 - Harga prototipe masih sementara: Desa 150/5.000, Hutan 250/12.000, Tepi Danau 600/25.000 (sewa/beli).
+
+
+## Quest & Mission System Update
+- Menambahkan Papan Misi di area desa. Dekati lalu tekan **E** dua kali untuk membuka misi.
+- Tombol **Q** juga membuka/menutup daftar misi di PC; tombol **MISI** tersedia pada layar sentuh.
+- Misi awal: Panen Pertama (1 kali panen), Pemburu Slime (3 Slime), dan Pengumpul Gel (5 Slime Gel). Slime muncul kembali 5 detik setelah dikalahkan agar misi berburu bisa diselesaikan.
+- Hadiah: 100, 150, dan 125 Money. Hadiah hanya bisa diklaim satu kali.
+- Progres misi dan status hadiah disimpan dalam save game.
+- Misi diperbarui otomatis ketika panen, Slime dikalahkan, atau Slime Gel masuk ke inventory.
+
+## Audit bug dan perbaikan tambahan
+- Memperbaiki titik respawn: setelah pemain pindah lahan, kekalahan/respawn kini mengembalikan pemain ke titik spawn lahan aktif, bukan koordinat awal desa.
+- Memperkuat pemuatan data properti agar record lahan yang rusak/tidak sesuai format tidak langsung dipakai sebagai data status.
+- Mempertahankan perbaikan sebelumnya untuk Peti Loot, transaksi breeding, inventory, dan validasi pakan.
+
+## Cara menguji fitur terbaru
+1. Jalankan game, dekati Papan Misi di area desa, lalu tekan **E** dua kali (atau tekan **Q**).
+2. Selesaikan misi panen dengan memasukkan bibit, memberi pakan, menunggu pertumbuhan, lalu panen.
+3. Kalahkan Slime sebanyak 3 kali untuk misi Pemburu Slime.
+4. Kumpulkan Slime Gel hingga 5 unit untuk misi Pengumpul Gel. Jika inventory penuh, ambil dulu item dari Peti Loot.
+5. Buka Papan Misi dan tekan **AMBIL HADIAH** pada misi yang selesai.
+6. Tutup dan jalankan ulang game untuk memastikan progres dan status hadiah tetap tersimpan.
+
+## Checklist perkembangan saat ini
+- [x] Struktur proyek Godot 4.x dan aset dasar Detailed Pixel Art 16×16.
+- [x] Gerakan pemain, input keyboard, kontrol sentuh dasar, HUD, HP, dan respawn.
+- [x] Kolam ikan, bibit, pakan, pertumbuhan offline, panen, Farm Value, dan Job Level.
+- [x] Save/load JSON dan backup.
+- [x] Slime AI, combat, loot material, peluang drop bibit, dan Peti Loot overflow.
+- [x] Inventory 30 slot, stack, penjualan item, dan toko.
+- [x] NPC Pedagang, Ahli Breeding, Pengelola Lahan, dan Papan Misi.
+- [x] Breeding Basic→Advanced→Rare→Epic→Legendary.
+- [x] Sewa/beli lahan, syarat Job Level, relokasi NPC/gerobak, dan penyimpanan properti.
+- [x] Quest awal, progres otomatis, klaim hadiah satu kali, dan penyimpanan progres.
+- [ ] Pengujian parser/runtime Godot 4.x menyeluruh.
+- [ ] Pengujian perangkat Android, layout layar, dan kontrol sentuh.
+- [ ] Sistem equipment, statistik karakter, dan skill.
+- [ ] Penyimpanan kolam terpisah untuk setiap lahan serta penempatan bangunan.
+- [ ] Monster tambahan, hutan/gua/Danger Zone, dan quest lanjutan.
+- [ ] Audio final, tutorial, polish UI, optimasi, dan build APK.
+
+## Batas verifikasi
+Pemeriksaan statis dilakukan pada JSON, referensi resource, jumlah resource scene, skenario aturan quest/properti, dan integritas ZIP. Godot executable tidak tersedia pada lingkungan pembuatan paket ini; karena itu parser GDScript, runtime game, dan perangkat Android belum dapat dinyatakan lulus. Harga lahan, toko, dan hadiah misi masih nilai prototipe untuk pengujian keseimbangan.

@@ -30,11 +30,19 @@ func _load_catalog() -> void:
 
 func sanitize_inventory() -> void:
     var clean: Dictionary = {}
-    for key in items.keys():
+    var item_ids: Array = items.keys()
+    item_ids.sort()
+    for key in item_ids:
         var item_id := str(key)
-        var amount := maxi(0, int(items[key]))
-        if amount > 0 and item_catalog.has(item_id):
-            clean[item_id] = mini(amount, get_stack_limit(item_id))
+        var raw_amount = items[key]
+        if typeof(raw_amount) != TYPE_INT and typeof(raw_amount) != TYPE_FLOAT:
+            continue
+        var amount := maxi(0, int(raw_amount))
+        if amount <= 0 or not item_catalog.has(item_id):
+            continue
+        if clean.size() >= SLOT_LIMIT and not clean.has(item_id):
+            continue
+        clean[item_id] = mini(amount, get_stack_limit(item_id))
     items = clean
 
 func get_stack_limit(item_id: String) -> int:

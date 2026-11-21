@@ -81,3 +81,19 @@
 - NPC bergerak membawa gerobak saat relokasi; status lahan dan lokasi aktif tersimpan.
 - Mempertahankan Peti Loot dan seluruh fitur versi sebelumnya.
 - Harga dan durasi adalah nilai prototipe sementara untuk pengujian keseimbangan.
+
+
+## Audit Bug — Respawn dan Data Properti
+- Respawn setelah pemain kalah kini memakai koordinat spawn dari lahan yang sedang aktif, termasuk setelah relokasi.
+- Data record lahan saat load disanitasi: status hanya menerima `locked`, `rented`, atau `owned`; waktu sewa dibatasi agar tidak negatif; record yang rusak dikembalikan ke nilai aman.
+
+## Quest & Mission System
+- Menambahkan `QuestManager` sebagai autoload.
+- Menambahkan tiga misi awal: Panen Pertama, Pemburu Slime, dan Pengumpul Gel.
+- Progres misi terhubung ke event panen, kematian Slime, dan penambahan item ke inventory.
+- Hadiah Money hanya bisa diklaim satu kali.
+- Status progres, penyelesaian, dan klaim hadiah disimpan bersama save game.
+- Menambahkan NPC Papan Misi dan panel daftar misi.
+- Akses PC melalui tombol Q; layar sentuh melalui tombol MISI.
+
+- Slime kini muncul kembali 5 detik setelah dikalahkan sehingga misi berburu tidak terhenti setelah monster pertama mati.

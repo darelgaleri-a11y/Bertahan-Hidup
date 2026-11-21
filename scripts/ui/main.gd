@@ -21,6 +21,8 @@ var _breeding_panel: PanelContainer
 var _breeding_content: VBoxContainer
 var _property_panel: PanelContainer
 var _property_content: VBoxContainer
+var _quest_panel: PanelContainer
+var _quest_content: VBoxContainer
 var _relocation_cart: Sprite2D
 var _relocating: bool = false
 var _inventory_open := false
@@ -32,6 +34,7 @@ const NPC_INTERACTION_RANGE := 62.0
 const FARM_TICK_INTERVAL := 1.0
 const AUTOSAVE_INTERVAL := 30.0
 const PLAYER_START_POSITION := Vector2(380, 270)
+const SLIME_RESPAWN_POSITION := Vector2(700, 270)
 const SHOP_ITEMS := {
     "seed_basic": {"price": 75, "label": "Bibit Basic"},
     "feed_basic": {"price": 10, "label": "Pakan Basic"}
@@ -62,6 +65,8 @@ func _ready() -> void:
     _on_player_health_changed(int(player.get("health")), int(player.get("max_health")))
     _show_message("E: kolam | I: inventory | B: toko | J/Space: serang.")
     _create_property_ui()
+    _create_quest_ui()
+    QuestManager.quests_changed.connect(_refresh_quest_ui)
 
 func _process(delta: float) -> void:
     _farm_tick_timer += delta
@@ -97,6 +102,9 @@ func _unhandled_input(event: InputEvent) -> void:
         elif event.keycode == KEY_B:
             _toggle_shop()
             get_viewport().set_input_as_handled()
+        elif event.keycode == KEY_Q:
+            _toggle_quest()
+            get_viewport().set_input_as_handled()
         elif event.keycode == KEY_ESCAPE:
             if _shop_open:
                 _toggle_shop(false)
@@ -106,6 +114,8 @@ func _unhandled_input(event: InputEvent) -> void:
                 _toggle_breeding(false)
             elif is_instance_valid(_property_panel) and _property_panel.visible:
                 _toggle_property(false)
+            elif is_instance_valid(_quest_panel) and _quest_panel.visible:
+                _toggle_quest(false)
             get_viewport().set_input_as_handled()
 
 func _interact() -> void:
@@ -165,6 +175,9 @@ func _interact_with_npc(npc: Node2D) -> void:
     elif npc_id == "property_agent":
         _toggle_property(true)
         _show_message("Pilih lahan untuk disewa, dibeli, atau ditempati.")
+    elif npc_id == "quest_giver":
+        _toggle_quest(true)
+        _show_message("Papan Misi dibuka. Selesaikan tugas dan klaim hadiahnya.")
     else:
         _show_message("%s: Senang bertemu denganmu!" % npc_name)
 
@@ -191,6 +204,19 @@ func _attack() -> void:
 func _on_monster_defeated(loot_summary: String) -> void:
     _show_message("Slime dikalahkan! Loot: " + loot_summary)
     combat_label.text = "Loot: " + loot_summary
+    _schedule_slime_respawn()
+
+func _schedule_slime_respawn() -> void:
+    await get_tree().create_timer(5.0).timeout
+    if not is_inside_tree():
+        return
+    var slime_scene := load("res://scenes/slime.tscn") as PackedScene
+    if slime_scene == null:
+        push_error("Scene Slime gagal dimuat untuk respawn.")
+        return
+    var new_slime := slime_scene.instantiate()
+    new_slime.global_position = SLIME_RESPAWN_POSITION
+    add_child(new_slime)
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
     health_label.text = "HP Pemain: %d/%d" % [current, maximum]
@@ -202,7 +228,7 @@ func _on_player_defeated() -> void:
     _show_message("Kamu kalah! Pemain akan pulih kembali.")
     await get_tree().create_timer(1.5).timeout
     if is_instance_valid(player):
-        player.call("restore_after_defeat", PLAYER_START_POSITION)
+        player.call("restore_after_defeat", _get_current_land_spawn_position())
         _show_message("Pemain pulih. Hati-hati terhadap monster!")
     _is_respawning = false
 
@@ -268,6 +294,8 @@ func _toggle_inventory(force_state: Variant = null) -> void:
             _toggle_breeding(false)
         if is_instance_valid(_property_panel):
             _toggle_property(false)
+        if is_instance_valid(_quest_panel):
+            _toggle_quest(false)
         _refresh_inventory()
 
 func _refresh_inventory() -> void:
@@ -368,6 +396,8 @@ func _toggle_shop(force_state: Variant = null) -> void:
             _toggle_breeding(false)
         if is_instance_valid(_property_panel):
             _toggle_property(false)
+        if is_instance_valid(_quest_panel):
+            _toggle_quest(false)
     _refresh_money()
 
 func _buy_item(item_id: String) -> void:
@@ -438,6 +468,8 @@ func _toggle_breeding(force_state: Variant = null) -> void:
         _toggle_inventory(false)
         if is_instance_valid(_property_panel):
             _toggle_property(false)
+        if is_instance_valid(_quest_panel):
+            _toggle_quest(false)
         _refresh_breeding_ui()
 
 func _refresh_breeding_ui() -> void:
@@ -519,6 +551,8 @@ func _toggle_property(force_state: Variant = null) -> void:
         _toggle_shop(false)
         _toggle_inventory(false)
         _toggle_breeding(false)
+        if is_instance_valid(_quest_panel):
+            _toggle_quest(false)
         _refresh_property_ui()
 
 func _refresh_property_ui() -> void:
@@ -583,6 +617,13 @@ func _property_action(action: String, land_id: String) -> void:
     _refresh_property_ui()
     SaveManager.save_game()
 
+func _get_current_land_spawn_position() -> Vector2:
+    var data: Dictionary = PropertyManager.get_land_data(PropertyManager.current_land_id)
+    var spawn_pos: Array = data.get("spawn_position", [PLAYER_START_POSITION.x, PLAYER_START_POSITION.y])
+    if spawn_pos.size() < 2:
+        return PLAYER_START_POSITION
+    return Vector2(float(spawn_pos[0]), float(spawn_pos[1]))
+
 func _apply_current_land_position() -> void:
     if not is_instance_valid(pond):
         return
@@ -639,6 +680,100 @@ func _finish_relocation(land_id: String) -> void:
     SaveManager.save_game()
     _show_message("Barang berhasil dipindahkan NPC. Selamat datang di %s!" % PropertyManager.get_current_land_name())
 
+func _create_quest_ui() -> void:
+    _quest_panel = PanelContainer.new()
+    _quest_panel.name = "QuestPanel"
+    _quest_panel.position = Vector2(260, 70)
+    _quest_panel.size = Vector2(440, 400)
+    _quest_panel.custom_minimum_size = Vector2(440, 400)
+    _quest_panel.visible = false
+    $CanvasLayer.add_child(_quest_panel)
+
+    var outer := VBoxContainer.new()
+    _quest_panel.add_child(outer)
+    var header := HBoxContainer.new()
+    outer.add_child(header)
+    var title := Label.new()
+    title.text = "PAPAN MISI"
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    header.add_child(title)
+    var close_button := Button.new()
+    close_button.text = "TUTUP"
+    close_button.pressed.connect(_toggle_quest.bind(false))
+    header.add_child(close_button)
+
+    var hint := Label.new()
+    hint.text = "Selesaikan tujuan misi. Hadiah hanya dapat diklaim satu kali."
+    hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    outer.add_child(hint)
+
+    var scroll := ScrollContainer.new()
+    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    outer.add_child(scroll)
+    _quest_content = VBoxContainer.new()
+    _quest_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(_quest_content)
+    _refresh_quest_ui()
+
+func _toggle_quest(force_state: Variant = null) -> void:
+    if not is_instance_valid(_quest_panel):
+        return
+    var open := not _quest_panel.visible if force_state == null else bool(force_state)
+    _quest_panel.visible = open
+    if open:
+        _toggle_inventory(false)
+        _toggle_shop(false)
+        _toggle_breeding(false)
+        _toggle_property(false)
+        _refresh_quest_ui()
+
+func _refresh_quest_ui() -> void:
+    if not is_instance_valid(_quest_content):
+        return
+    for child in _quest_content.get_children():
+        _quest_content.remove_child(child)
+        child.free()
+
+    for quest_id_value in QuestManager.QUESTS.keys():
+        var quest_id := str(quest_id_value)
+        var data: Dictionary = QuestManager.get_quest_status(quest_id)
+        var row := VBoxContainer.new()
+        _quest_content.add_child(row)
+
+        var title := Label.new()
+        title.text = str(data.get("title", quest_id))
+        title.add_theme_font_size_override("font_size", 18)
+        row.add_child(title)
+
+        var description := Label.new()
+        description.text = str(data.get("description", ""))
+        description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        row.add_child(description)
+
+        var target := maxi(1, int(data.get("target", 1)))
+        var current := int(data.get("progress", 0))
+        var state_text := "Selesai" if bool(data.get("completed", false)) else "Progres"
+        if bool(data.get("claimed", false)):
+            state_text = "Hadiah sudah diambil"
+        var progress_label := Label.new()
+        progress_label.text = "%s: %d/%d | Hadiah: %d Money" % [
+            state_text, current, target, int(data.get("reward", 0))
+        ]
+        row.add_child(progress_label)
+
+        var claim_button := Button.new()
+        claim_button.text = "AMBIL HADIAH"
+        claim_button.disabled = not bool(data.get("completed", false)) or bool(data.get("claimed", false))
+        claim_button.pressed.connect(_claim_quest_reward.bind(quest_id))
+        row.add_child(claim_button)
+
+func _claim_quest_reward(quest_id: String) -> void:
+    var result: Dictionary = QuestManager.claim_reward(quest_id)
+    _show_message(str(result.get("message", "Hadiah misi diproses.")))
+    _refresh_money()
+    _refresh_quest_ui()
+    SaveManager.save_game()
+
 func _create_mobile_controls() -> void:
     if not OS.has_feature("mobile") and not DisplayServer.is_touchscreen_available():
         return
@@ -660,6 +795,12 @@ func _create_mobile_controls() -> void:
     shop_button.size = Vector2(100, 54)
     $CanvasLayer.add_child(shop_button)
     shop_button.pressed.connect(_toggle_shop)
+    var quest_button := Button.new()
+    quest_button.text = "MISI"
+    quest_button.position = Vector2(620, 350)
+    quest_button.size = Vector2(100, 54)
+    $CanvasLayer.add_child(quest_button)
+    quest_button.pressed.connect(_toggle_quest)
 
 func _add_touch_button(caption: String, button_position: Vector2, action: StringName, button_size: Vector2 = Vector2(58, 52)) -> void:
     var touch_button := Button.new()

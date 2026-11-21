@@ -42,7 +42,10 @@ func load_save_data(data: Dictionary) -> void:
     pending_loot.clear()
     for key in data.keys():
         var item_id := str(key)
-        var amount := maxi(0, int(data[key]))
+        var raw_amount = data[key]
+        if typeof(raw_amount) != TYPE_INT and typeof(raw_amount) != TYPE_FLOAT:
+            continue
+        var amount := maxi(0, int(raw_amount))
         if amount > 0 and InventoryManager.item_catalog.has(item_id):
             pending_loot[item_id] = amount
     loot_changed.emit()

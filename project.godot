@@ -55,4 +55,4 @@ SaveManager="*res://scripts/autoload/save_manager.gd"
 BreedingManager="*res://scripts/autoload/breeding_manager.gd"
 LootManager="*res://scripts/autoload/loot_manager.gd"
 PropertyManager="*res://scripts/autoload/property_manager.gd"
-
+QuestManager="*res://scripts/autoload/quest_manager.gd"
