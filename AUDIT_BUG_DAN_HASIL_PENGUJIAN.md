@@ -14,7 +14,8 @@
 5. **Respawn setelah relokasi** — pemain sekarang kembali ke spawn lahan aktif.
 6. **Inventory dan Peti Loot saat memuat save** — data non-numerik/ID item tidak dikenal disaring dan kapasitas inventory dibatasi 30 slot.
 7. **Data lahan rusak** — status lahan disanitasi saat load.
-8. **Sistem equipment baru** — menambahkan transaksi equip/unequip yang mengembalikan item lama ke inventory, validasi slot, dan penyimpanan equipment.
+8. **Sistem equipment** — transaksi equip/unequip mengembalikan item lama ke inventory, memvalidasi slot, dan menyimpan equipment.
+9. **Character Stats System** — status kini dihitung konsisten dari Job Level, terhubung ke damage, HP maksimum, defense, dan kecepatan gerak; panel status dapat dibuka dengan tombol P atau tombol STATUS. Status tidak disimpan ganda karena diturunkan dari Job Level.
 
 ## Equipment yang tersedia
 - Pedang Kayu: +10 ATK
@@ -24,14 +25,28 @@
 
 Slot: Weapon, Armor, Boots, Accessory. Bonus diterapkan pada damage serangan pemain, pengurangan damage yang diterima, HP maksimum, dan kecepatan gerak.
 
+## Character Stats yang diterapkan
+| Atribut | Job Level 1 | Tambahan tiap Job Level | Dampak saat ini |
+|---|---:|---:|---|
+| Strength | 10 | +2 | +1 damage dasar per poin di atas 10 |
+| Vitality | 10 | +2 | +5 HP maksimum per poin di atas 10 |
+| Defense | 5 | +1 | Mengurangi damage masuk; minimum damage 1 |
+| Agility | 5 | +1 | +2 kecepatan gerak per poin di atas 5 |
+| Ability | 5 | +1 | Disiapkan untuk Skill System |
+| Stamina | 10 | +2 | Disiapkan untuk Stamina System |
+
+Bonus equipment ditambahkan ke atribut terkait. Tidak ada alokasi poin manual atau biaya reset.
+
 ## Hasil pemeriksaan statis
 - Semua 4 katalog JSON berhasil dibaca.
 - Tidak ditemukan referensi `res://` yang menunjuk file hilang.
 - Semua nilai `load_steps` scene sesuai jumlah resource.
 - Tidak ditemukan nama fungsi duplikat dalam file GDScript.
 - Integrasi save/load quest dan equipment terdeteksi pada source.
+- Autoload StatsManager, enam atribut, rumus Job Level 1 dan 2, serta integrasi status ke player/UI terdeteksi.
+- Status dihitung ulang dari Job Level tersimpan; tidak ada data status duplikat yang perlu disinkronkan.
 - Hook panen, penambahan Slime Gel, dan kematian Slime terdeteksi.
-- Simulasi transaksi ganti/lepas equipment dan progres quest lulus.
+- Simulasi rumus status Job Level 1 dan 2 lulus; simulasi transaksi ganti/lepas equipment dan progres quest dari audit sebelumnya tetap menjadi pemeriksaan logika statis.
 - ZIP diuji integritasnya.
 
 ## Batas pengujian

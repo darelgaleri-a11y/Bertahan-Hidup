@@ -26,18 +26,19 @@ func _physics_process(_delta: float) -> void:
         sprite.flip_h = input_vector.x < 0.0
 
 func get_attack_damage() -> int:
-    return maxi(1, 25 + int(EquipmentManager.get_total_stat("attack")))
+    return maxi(1, 25 + (StatsManager.get_stat("strength") - 10) + int(EquipmentManager.get_total_stat("attack")))
 
 func get_effective_max_health() -> int:
-    return maxi(1, max_health + int(EquipmentManager.get_total_stat("max_health")))
+    return maxi(1, max_health + (StatsManager.get_stat("vitality") - 10) * 5 + int(EquipmentManager.get_total_stat("max_health")))
 
 func get_effective_move_speed() -> float:
-    return maxf(40.0, move_speed + EquipmentManager.get_total_stat("move_speed"))
+    return maxf(40.0, move_speed + float(StatsManager.get_stat("agility") - 5) * 2.0 + EquipmentManager.get_total_stat("move_speed"))
 
 func take_damage(amount: int) -> void:
     if amount <= 0 or health <= 0 or is_defeated:
         return
-    var reduced_damage := maxi(1, amount - int(EquipmentManager.get_total_stat("defense")))
+    var total_defense := StatsManager.get_stat("defense") + int(EquipmentManager.get_total_stat("defense"))
+    var reduced_damage := maxi(1, amount - total_defense)
     health = maxi(0, health - reduced_damage)
     health_changed.emit(health, get_effective_max_health())
     if health == 0:

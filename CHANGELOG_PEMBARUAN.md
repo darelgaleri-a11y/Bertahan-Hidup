@@ -109,3 +109,13 @@
 - Menambahkan aksi Pakai/Lepas pada inventory dan pengembalian perlengkapan lama saat mengganti item.
 - Menambahkan penyimpanan perlengkapan pada save game dan menaikkan SAVE_VERSION ke 4.
 - Toko menggunakan ScrollContainer agar seluruh daftar item dapat diakses pada ukuran layar terbatas.
+
+## Character Stats System — Pembaruan berikutnya
+- Menambahkan `StatsManager` sebagai sumber status karakter yang dihitung dari Job Level.
+- Enam atribut: Strength, Vitality, Defense, Agility, Ability, dan Stamina.
+- Setiap kenaikan Job Level memberi +2 Strength, +2 Vitality, +1 Defense, +1 Agility, +1 Ability, dan +2 Stamina.
+- Strength memengaruhi damage serangan; Vitality menambah HP maksimum; Defense mengurangi damage masuk; Agility menambah kecepatan gerak.
+- Ability dan Stamina sudah tampil sebagai atribut dasar, tetapi efek skill dan konsumsi stamina menunggu implementasi Skill/Stamina System.
+- Bonus equipment tetap ditambahkan di atas status dasar.
+- Panel STATUS dapat dibuka dengan tombol P atau tombol STATUS di layar sentuh.
+- Status tidak disimpan terpisah karena dihitung dari Job Level yang sudah disimpan; hal ini mencegah data status berbeda dari level karakter.

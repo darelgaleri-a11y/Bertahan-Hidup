@@ -23,6 +23,8 @@ var _property_panel: PanelContainer
 var _property_content: VBoxContainer
 var _quest_panel: PanelContainer
 var _quest_content: VBoxContainer
+var _stats_panel: PanelContainer
+var _stats_content: VBoxContainer
 var _relocation_cart: Sprite2D
 var _relocating: bool = false
 var _inventory_open := false
@@ -72,7 +74,9 @@ func _ready() -> void:
     _show_message("E: interaksi | I: inventory/perlengkapan | B: toko | J/Space: serang.")
     _create_property_ui()
     _create_quest_ui()
+    _create_stats_ui()
     QuestManager.quests_changed.connect(_refresh_quest_ui)
+    StatsManager.stats_changed.connect(_on_stats_changed)
 
 func _process(delta: float) -> void:
     _farm_tick_timer += delta
@@ -111,6 +115,9 @@ func _unhandled_input(event: InputEvent) -> void:
         elif event.keycode == KEY_Q:
             _toggle_quest()
             get_viewport().set_input_as_handled()
+        elif event.keycode == KEY_P:
+            _toggle_stats()
+            get_viewport().set_input_as_handled()
         elif event.keycode == KEY_ESCAPE:
             if _shop_open:
                 _toggle_shop(false)
@@ -122,6 +129,8 @@ func _unhandled_input(event: InputEvent) -> void:
                 _toggle_property(false)
             elif is_instance_valid(_quest_panel) and _quest_panel.visible:
                 _toggle_quest(false)
+            elif is_instance_valid(_stats_panel) and _stats_panel.visible:
+                _toggle_stats(false)
             get_viewport().set_input_as_handled()
 
 func _interact() -> void:
@@ -310,6 +319,8 @@ func _toggle_inventory(force_state: Variant = null) -> void:
             _toggle_property(false)
         if is_instance_valid(_quest_panel):
             _toggle_quest(false)
+        if is_instance_valid(_stats_panel):
+            _toggle_stats(false)
         _refresh_inventory()
 
 func _refresh_inventory() -> void:
@@ -393,6 +404,7 @@ func _on_equipment_changed() -> void:
         player.set("health", mini(current_hp, new_max_hp))
         _on_player_health_changed(int(player.get("health")), new_max_hp)
     _refresh_inventory()
+    _refresh_stats_ui()
     SaveManager.save_game()
 
 func _sell_item(item_id: String) -> void:
@@ -463,6 +475,8 @@ func _toggle_shop(force_state: Variant = null) -> void:
     _shop_open = not _shop_open if force_state == null else bool(force_state)
     _shop_panel.visible = _shop_open
     if _shop_open:
+        if is_instance_valid(_stats_panel):
+            _toggle_stats(false)
         _toggle_inventory(false)
         if is_instance_valid(_breeding_panel):
             _toggle_breeding(false)
@@ -536,6 +550,8 @@ func _toggle_breeding(force_state: Variant = null) -> void:
     var open := not _breeding_panel.visible if force_state == null else bool(force_state)
     _breeding_panel.visible = open
     if open:
+        if is_instance_valid(_stats_panel):
+            _toggle_stats(false)
         _toggle_shop(false)
         _toggle_inventory(false)
         if is_instance_valid(_property_panel):
@@ -620,6 +636,8 @@ func _toggle_property(force_state: Variant = null) -> void:
     var open := not _property_panel.visible if force_state == null else bool(force_state)
     _property_panel.visible = open
     if open:
+        if is_instance_valid(_stats_panel):
+            _toggle_stats(false)
         _toggle_shop(false)
         _toggle_inventory(false)
         _toggle_breeding(false)
@@ -793,6 +811,8 @@ func _toggle_quest(force_state: Variant = null) -> void:
     var open := not _quest_panel.visible if force_state == null else bool(force_state)
     _quest_panel.visible = open
     if open:
+        if is_instance_valid(_stats_panel):
+            _toggle_stats(false)
         _toggle_inventory(false)
         _toggle_shop(false)
         _toggle_breeding(false)
@@ -846,6 +866,98 @@ func _claim_quest_reward(quest_id: String) -> void:
     _refresh_quest_ui()
     SaveManager.save_game()
 
+func _create_stats_ui() -> void:
+    _stats_panel = PanelContainer.new()
+    _stats_panel.name = "StatsPanel"
+    _stats_panel.position = Vector2(285, 65)
+    _stats_panel.size = Vector2(390, 410)
+    _stats_panel.custom_minimum_size = Vector2(390, 410)
+    _stats_panel.visible = false
+    $CanvasLayer.add_child(_stats_panel)
+    _stats_content = VBoxContainer.new()
+    _stats_panel.add_child(_stats_content)
+    var header := HBoxContainer.new()
+    header.name = "StatsHeader"
+    _stats_content.add_child(header)
+    var title := Label.new()
+    title.text = "STATUS KARAKTER"
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    header.add_child(title)
+    var close_button := Button.new()
+    close_button.text = "TUTUP"
+    close_button.pressed.connect(_toggle_stats.bind(false))
+    header.add_child(close_button)
+    _refresh_stats_ui()
+
+func _toggle_stats(force_state: Variant = null) -> void:
+    if not is_instance_valid(_stats_panel):
+        return
+    _stats_panel.visible = not _stats_panel.visible if force_state == null else bool(force_state)
+    if _stats_panel.visible:
+        _toggle_inventory(false)
+        _toggle_shop(false)
+        if is_instance_valid(_breeding_panel):
+            _toggle_breeding(false)
+        if is_instance_valid(_property_panel):
+            _toggle_property(false)
+        if is_instance_valid(_quest_panel):
+            _toggle_quest(false)
+        _refresh_stats_ui()
+
+func _on_stats_changed() -> void:
+    if is_instance_valid(player):
+        var current_hp := int(player.get("health"))
+        var maximum_hp := int(player.call("get_effective_max_health"))
+        player.set("health", mini(current_hp, maximum_hp))
+        _on_player_health_changed(int(player.get("health")), maximum_hp)
+    _refresh_stats_ui()
+
+func _refresh_stats_ui() -> void:
+    if not is_instance_valid(_stats_content):
+        return
+    for child in _stats_content.get_children():
+        if child.name != "StatsHeader":
+            _stats_content.remove_child(child)
+            child.free()
+    var level_label := Label.new()
+    level_label.text = "Job Level %d  |  Farm Value %d" % [GameManager.job_level, GameManager.farm_value]
+    _stats_content.add_child(level_label)
+    var hint := Label.new()
+    hint.text = "Status naik otomatis setiap Job Level meningkat. Tidak memakai poin alokasi."
+    hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    _stats_content.add_child(hint)
+    var divider := HSeparator.new()
+    _stats_content.add_child(divider)
+    for stat_name in ["strength", "vitality", "defense", "agility", "ability", "stamina"]:
+        var stat_row := VBoxContainer.new()
+        _stats_content.add_child(stat_row)
+        var value_label := Label.new()
+        value_label.text = "%s: %d" % [StatsManager.get_stat_label(stat_name), StatsManager.get_stat(stat_name)]
+        stat_row.add_child(value_label)
+        var description := Label.new()
+        description.text = StatsManager.get_stat_description(stat_name)
+        description.modulate = Color(0.82, 0.86, 0.9, 1.0)
+        description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        stat_row.add_child(description)
+    var equipment_label := Label.new()
+    equipment_label.text = "Bonus equipment: ATK +%d | DEF +%d | HP +%d | Speed +%d" % [
+        int(EquipmentManager.get_total_stat("attack")),
+        int(EquipmentManager.get_total_stat("defense")),
+        int(EquipmentManager.get_total_stat("max_health")),
+        int(EquipmentManager.get_total_stat("move_speed"))
+    ]
+    equipment_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    _stats_content.add_child(equipment_label)
+    var derived_label := Label.new()
+    derived_label.text = "Efek aktif: Damage %d | HP Maks %d | Defense %d | Kecepatan %.0f" % [
+        int(player.call("get_attack_damage")),
+        int(player.call("get_effective_max_health")),
+        StatsManager.get_stat("defense") + int(EquipmentManager.get_total_stat("defense")),
+        float(player.call("get_effective_move_speed"))
+    ]
+    derived_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    _stats_content.add_child(derived_label)
+
 func _create_mobile_controls() -> void:
     if not OS.has_feature("mobile") and not DisplayServer.is_touchscreen_available():
         return
@@ -873,6 +985,12 @@ func _create_mobile_controls() -> void:
     quest_button.size = Vector2(100, 54)
     $CanvasLayer.add_child(quest_button)
     quest_button.pressed.connect(_toggle_quest)
+    var stats_button := Button.new()
+    stats_button.text = "STATUS"
+    stats_button.position = Vector2(510, 350)
+    stats_button.size = Vector2(100, 54)
+    $CanvasLayer.add_child(stats_button)
+    stats_button.pressed.connect(_toggle_stats)
 
 func _add_touch_button(caption: String, button_position: Vector2, action: StringName, button_size: Vector2 = Vector2(58, 52)) -> void:
     var touch_button := Button.new()
