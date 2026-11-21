@@ -36,6 +36,7 @@ var _relocating: bool = false
 var _inventory_open := false
 var _shop_open := false
 var _last_npc_id: String = ""
+var _pending_monster_respawns: Array[Dictionary] = []
 
 const NPC_INTERACTION_RANGE := 62.0
 
@@ -121,6 +122,8 @@ func _process(delta: float) -> void:
                     break
         if not still_near_last_npc:
             _last_npc_id = ""
+
+    _process_pending_monster_respawns()
 
     if not bool(player.get("is_defeated")):
         if Input.is_action_just_pressed("interact"):
@@ -270,12 +273,45 @@ func _schedule_monster_respawn(scene_path: String, spawn_position: Vector2, mons
     if monster_scene == null:
         push_error("Scene monster gagal dimuat untuk respawn: " + scene_path)
         return
+    var monster_region := _get_region_for_monster_scene(scene_path)
+    if monster_region == RegionManager.current_region_id:
+        _spawn_respawned_monster(monster_scene, spawn_position)
+    else:
+        # Jangan menunggu signal tanpa batas pada coroutine. Simpan sebagai antrean;
+        # monster akan dibuat ketika wilayah asalnya kembali aktif.
+        _pending_monster_respawns.append({
+            "scene": monster_scene,
+            "position": spawn_position,
+            "region_id": monster_region,
+            "monster_name": monster_name
+        })
+
+func _spawn_respawned_monster(monster_scene: PackedScene, spawn_position: Vector2) -> void:
     var new_monster := monster_scene.instantiate()
-    # Pasang callback sebelum node masuk SceneTree agar sinyal defeated
-    # sudah terhubung sejak awal siklus hidup monster respawn.
     _register_monster_signal(new_monster)
     new_monster.position = spawn_position
     add_child(new_monster)
+
+func _process_pending_monster_respawns() -> void:
+    for i in range(_pending_monster_respawns.size() - 1, -1, -1):
+        var pending: Dictionary = _pending_monster_respawns[i]
+        if str(pending.get("region_id", "")) != RegionManager.current_region_id:
+            continue
+        var monster_scene := pending.get("scene") as PackedScene
+        var spawn_position: Vector2 = pending.get("position", Vector2(380, 270))
+        if monster_scene != null:
+            _spawn_respawned_monster(monster_scene, spawn_position)
+        _pending_monster_respawns.remove_at(i)
+
+func _get_region_for_monster_scene(scene_path: String) -> String:
+    # Fallback menggunakan katalog wilayah dan identitas scene monster.
+    var scene_name := scene_path.get_file().get_basename()
+    match scene_name:
+        "slime": return "village"
+        "wolf": return "forest"
+        "skeleton", "goblin": return "cave"
+        "elite_beast", "boss": return "danger_zone"
+    return "village"
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
     health_label.text = "HP Pemain: %d/%d" % [current, maximum]
@@ -287,7 +323,7 @@ func _on_player_defeated() -> void:
     _show_message("Kamu kalah! Pemain akan pulih kembali.")
     await get_tree().create_timer(1.5).timeout
     if is_instance_valid(player):
-        player.call("restore_after_defeat", _get_current_land_spawn_position())
+        player.call("restore_after_defeat", RegionManager.get_spawn_position())
         _show_message("Pemain pulih. Hati-hati terhadap monster!")
     _is_respawning = false
 
@@ -770,8 +806,8 @@ func _apply_current_land_position() -> void:
         return
     var pond_pos: Array = data.get("pond_position", [520, 270])
     pond.position = Vector2(float(pond_pos[0]), float(pond_pos[1]))
-    if is_instance_valid(player):
-        player.global_position = RegionManager.get_spawn_position()
+    # Relokasi lahan hanya mengubah posisi kolam. Posisi pemain tidak boleh
+    # dipindahkan otomatis karena ia mungkin sedang menjelajah wilayah lain.
 
 func _apply_current_region_appearance() -> void:
     var data := RegionManager.get_current_region_data()
@@ -829,6 +865,7 @@ func _on_relocation_started(land_id: String) -> void:
     )
 
 func _finish_relocation(land_id: String) -> void:
+    # Relokasi NPC dan kolam properti tidak memindahkan karakter dari wilayah eksplorasi.
     _apply_current_land_position()
     _relocating = false
     if is_instance_valid(_property_panel) and _property_panel.visible:

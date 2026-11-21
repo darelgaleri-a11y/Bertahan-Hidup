@@ -5,6 +5,7 @@
 
 [node name="PropertyAgent" type="Node2D"]
 script = ExtResource("1")
+region_id = "village"
 npc_id = "property_agent"
 display_name = "Pengelola Lahan"
 greeting = "Aku mengurus sewa, pembelian, dan perpindahan lahanmu."

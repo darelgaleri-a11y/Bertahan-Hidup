@@ -5,6 +5,7 @@
 
 [node name="QuestBoard" type="Node2D"]
 script = ExtResource("1")
+region_id = "village"
 npc_id = "quest_giver"
 display_name = "Papan Misi"
 greeting = "Ada pekerjaan untuk petualang. Lihat daftar misi yang tersedia."
