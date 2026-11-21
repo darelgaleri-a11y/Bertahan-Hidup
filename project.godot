@@ -12,7 +12,7 @@ window/size/viewport_height=540
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
-window/handheld/orientation=1
+window/handheld/orientation=0
 
 [rendering]
 renderer/rendering_method="gl_compatibility"
@@ -42,6 +42,10 @@ interact={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"physical_keycode":KEY_E)]
 }
+attack={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":KEY_J), Object(InputEventKey,"physical_keycode":KEY_SPACE)]
+}
 
 [autoload]
 GameManager="*res://scripts/autoload/game_manager.gd"
@@ -49,7 +53,3 @@ InventoryManager="*res://scripts/autoload/inventory_manager.gd"
 FarmManager="*res://scripts/autoload/farm_manager.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 
-attack={
-"deadzone": 0.2,
-"events": [Object(InputEventKey,"physical_keycode":KEY_J), Object(InputEventKey,"physical_keycode":KEY_SPACE)]
-}

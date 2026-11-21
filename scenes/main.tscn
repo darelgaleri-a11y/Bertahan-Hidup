@@ -51,10 +51,10 @@ layout_mode = 2
 text = "Kolam: 0/10 ikan"
 
 [node name="Message" type="Label" parent="CanvasLayer"]
-offset_left = 18.0
-offset_top = 475.0
-offset_right = 940.0
-offset_bottom = 520.0
+offset_left = 220.0
+offset_top = 485.0
+offset_right = 720.0
+offset_bottom = 530.0
 text = "WASD / tombol panah untuk bergerak. E untuk interaksi."
 
 [node name="CombatInfo" type="Label" parent="CanvasLayer"]
@@ -63,3 +63,10 @@ offset_top = 18.0
 offset_right = 940.0
 offset_bottom = 58.0
 text = "Monster: Slime | J/Space: Serang"
+
+[node name="PlayerHealth" type="Label" parent="CanvasLayer"]
+offset_left = 650.0
+offset_top = 62.0
+offset_right = 940.0
+offset_bottom = 94.0
+text = "HP: 100/100"

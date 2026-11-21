@@ -5,6 +5,8 @@ const TEMP_PATH := "user://savegame.json.tmp"
 const BACKUP_PATH := "user://savegame_backup.json"
 
 func save_game() -> bool:
+    # Hitung pertumbuhan sampai detik penyimpanan agar tidak ada waktu yang hilang.
+    FarmManager.update_offline()
     var payload := {
         "version": 2,
         "saved_at": int(Time.get_unix_time_from_system()),
@@ -41,24 +43,41 @@ func save_game() -> bool:
             DirAccess.remove_absolute(temp_absolute)
             return false
 
+    if had_save:
+        var remove_error := DirAccess.remove_absolute(save_absolute)
+        if remove_error != OK:
+            push_error("Gagal menyiapkan file save lama untuk diganti.")
+            DirAccess.remove_absolute(temp_absolute)
+            return false
+
     var replace_error := DirAccess.rename_absolute(temp_absolute, save_absolute)
     if replace_error != OK:
-        push_error("Gagal mengganti file save. Save sebelumnya tetap dipertahankan.")
+        push_error("Gagal mengganti file save. Mencoba memulihkan backup.")
         DirAccess.remove_absolute(temp_absolute)
+        if had_save and FileAccess.file_exists(BACKUP_PATH):
+            DirAccess.copy_absolute(backup_absolute, save_absolute)
         return false
     return true
 
-func load_game() -> bool:
-    if not FileAccess.file_exists(SAVE_PATH):
-        return false
-    var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+func _read_save_file(path: String) -> Dictionary:
+    if not FileAccess.file_exists(path):
+        return {}
+    var file := FileAccess.open(path, FileAccess.READ)
     if file == null:
-        push_error("File save ditemukan tetapi tidak dapat dibaca.")
-        return false
+        return {}
     var parsed = JSON.parse_string(file.get_as_text())
     file.close()
     if typeof(parsed) != TYPE_DICTIONARY:
-        push_error("Format save game tidak valid.")
+        return {}
+    return parsed
+
+func load_game() -> bool:
+    var parsed := _read_save_file(SAVE_PATH)
+    if parsed.is_empty() and FileAccess.file_exists(BACKUP_PATH):
+        parsed = _read_save_file(BACKUP_PATH)
+        if not parsed.is_empty():
+            push_warning("Save utama tidak valid. Data dipulihkan dari backup.")
+    if parsed.is_empty():
         return false
 
     GameManager.money = int(parsed.get("money", 250))
