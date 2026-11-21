@@ -81,6 +81,18 @@ func _ready() -> void:
     SkillManager.skills_changed.connect(_refresh_skills_ui)
     SkillManager.stamina_changed.connect(_on_stamina_changed)
     _create_skills_ui()
+    _register_existing_monster_signals()
+
+func _register_existing_monster_signals() -> void:
+    for monster in get_tree().get_nodes_in_group("monster_entities"):
+        _register_monster_signal(monster)
+
+func _register_monster_signal(monster: Node) -> void:
+    if not is_instance_valid(monster) or not monster.has_signal("defeated"):
+        return
+    var callback := Callable(self, "_on_monster_defeated")
+    if not monster.is_connected("defeated", callback):
+        monster.connect("defeated", callback)
 
 func _process(delta: float) -> void:
     _farm_tick_timer += delta
@@ -248,6 +260,7 @@ func _schedule_monster_respawn(scene_path: String, spawn_position: Vector2, mons
     var new_monster := monster_scene.instantiate()
     add_child(new_monster)
     new_monster.global_position = spawn_position
+    _register_monster_signal(new_monster)
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
     health_label.text = "HP Pemain: %d/%d" % [current, maximum]

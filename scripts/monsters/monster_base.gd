@@ -26,6 +26,9 @@ var _unlocked: bool = false
 
 func _ready() -> void:
     health = maxi(1, max_health)
+    # Kelompok ini mencakup monster yang masih terkunci agar sinyalnya
+    # tetap terdaftar ketika monster terbuka setelah save dimuat/level naik.
+    add_to_group("monster_entities")
     _unlocked = GameManager.job_level >= required_job_level
     visible = _unlocked
     set_physics_process(_unlocked)
@@ -106,10 +109,8 @@ func _die() -> void:
     queue_free()
 
 func _get_item_name(item_id: String) -> String:
-    var catalog := load("res://data/item_catalog.json")
-    if catalog == null:
-        return item_id
-    var parsed = JSON.parse_string(catalog.get_as_text())
-    if typeof(parsed) == TYPE_DICTIONARY and parsed.has(item_id):
-        return str(parsed[item_id].get("name", item_id))
+    # InventoryManager sudah memuat dan memvalidasi katalog item saat game dimulai.
+    # Gunakan sumber data yang sama agar tidak memanggil get_as_text() pada Resource JSON.
+    if is_instance_valid(InventoryManager):
+        return InventoryManager.get_item_name(item_id)
     return item_id
