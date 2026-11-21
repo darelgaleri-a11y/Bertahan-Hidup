@@ -5,6 +5,7 @@ signal health_changed(current: int, maximum: int)
 
 @export var monster_id: String = "monster_slime"
 @export var monster_name: String = "Slime"
+@export var region_id: String = "village"
 @export var required_job_level: int = 1
 @export var max_health: int = 50
 @export var attack_damage: int = 5
@@ -26,29 +27,38 @@ var _unlocked: bool = false
 
 func _ready() -> void:
     health = maxi(1, max_health)
-    # Kelompok ini mencakup monster yang masih terkunci agar sinyalnya
-    # tetap terdaftar ketika monster terbuka setelah save dimuat/level naik.
+    # Semua monster didaftarkan agar sinyal defeated terhubung meskipun
+    # monster sedang terkunci atau berada di wilayah lain.
     add_to_group("monster_entities")
+    if not RegionManager.region_changed.is_connected(_on_region_changed):
+        RegionManager.region_changed.connect(_on_region_changed)
     _unlocked = GameManager.job_level >= required_job_level
-    visible = _unlocked
-    set_physics_process(_unlocked)
-    if not _unlocked:
-        collision_layer = 0
-        collision_mask = 0
-    if _unlocked:
-        add_to_group("monsters")
+    _sync_region_presence()
     player = get_tree().get_first_node_in_group("player") as CharacterBody2D
     health_changed.emit(health, max_health)
 
 func _process(_delta: float) -> void:
     if not _unlocked and GameManager.job_level >= required_job_level:
         _unlocked = true
-        visible = true
-        collision_layer = 2
-        collision_mask = 1
-        set_physics_process(true)
-        add_to_group("monsters")
-        GameManager.notification_requested.emit("%s muncul di area!" % monster_name)
+        _sync_region_presence()
+        var region_name := str(RegionManager.get_region_data(region_id).get("name", region_id))
+        GameManager.notification_requested.emit("%s terbuka! Temukan di wilayah %s." % [monster_name, region_name])
+
+func _on_region_changed(_new_region_id: String) -> void:
+    _sync_region_presence()
+
+func _sync_region_presence() -> void:
+    _unlocked = GameManager.job_level >= required_job_level
+    var is_active := _unlocked and region_id == RegionManager.current_region_id and not _dead
+    visible = is_active
+    collision_layer = 2 if is_active else 0
+    collision_mask = 1 if is_active else 0
+    set_physics_process(is_active)
+    if is_active:
+        if not is_in_group("monsters"):
+            add_to_group("monsters")
+    elif is_in_group("monsters"):
+        remove_from_group("monsters")
 
 func _physics_process(delta: float) -> void:
     if _dead or not _unlocked:

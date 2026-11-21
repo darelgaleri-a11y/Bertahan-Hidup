@@ -80,6 +80,13 @@ offset_right = 940.0
 offset_bottom = 94.0
 text = "HP: 100/100"
 
+[node name="RegionInfo" type="Label" parent="CanvasLayer"]
+offset_left = 650.0
+offset_top = 98.0
+offset_right = 940.0
+offset_bottom = 126.0
+text = "Wilayah: Desa | M: Peta Wilayah"
+
 [node name="Shopkeeper" parent="." instance=ExtResource("6")]
 position = Vector2(250, 180)
 

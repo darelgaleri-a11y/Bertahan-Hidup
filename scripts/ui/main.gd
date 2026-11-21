@@ -2,6 +2,8 @@ extends Node2D
 
 @onready var player: CharacterBody2D = $Player
 @onready var pond: Sprite2D = $Pond
+@onready var ground_visual: Sprite2D = $Ground/GroundVisual
+@onready var region_label: Label = $CanvasLayer/RegionInfo
 @onready var info_label: Label = $CanvasLayer/Panel/VBox/Info
 @onready var money_label: Label = $CanvasLayer/Panel/VBox/Money
 @onready var message_label: Label = $CanvasLayer/Message
@@ -27,6 +29,8 @@ var _stats_panel: PanelContainer
 var _stats_content: VBoxContainer
 var _skills_panel: PanelContainer
 var _skills_content: VBoxContainer
+var _region_panel: PanelContainer
+var _region_content: VBoxContainer
 var _relocation_cart: Sprite2D
 var _relocating: bool = false
 var _inventory_open := false
@@ -51,12 +55,15 @@ func _ready() -> void:
     player.add_to_group("player")
     player.connect("health_changed", Callable(self, "_on_player_health_changed"))
     player.connect("player_defeated", Callable(self, "_on_player_defeated"))
+    RegionManager.region_changed.connect(_on_region_changed)
     SaveManager.load_game()
     player.set("health", int(player.call("get_effective_max_health")))
     FarmManager.initialize_if_needed()
     PropertyManager.initialize_if_needed()
     PropertyManager.relocation_started.connect(_on_relocation_started)
     _apply_current_land_position()
+    _apply_current_region_appearance()
+    _refresh_region_label()
     GameManager.notification_requested.connect(_show_message)
     GameManager.money_changed.connect(_refresh_money)
     GameManager.farm_value_changed.connect(_refresh_money)
@@ -72,10 +79,11 @@ func _ready() -> void:
     _refresh_money()
     _refresh_inventory()
     _on_player_health_changed(int(player.get("health")), int(player.call("get_effective_max_health")))
-    _show_message("E: interaksi | I: inventory | B: toko | P: status | O: skill | K: Power Strike | L: Recovery.")
+    _show_message("E: interaksi | I: inventory | B: toko | P: status | O: skill | M: wilayah | K: Power Strike | L: Recovery.")
     _create_property_ui()
     _create_quest_ui()
     _create_stats_ui()
+    _create_region_ui()
     QuestManager.quests_changed.connect(_refresh_quest_ui)
     StatsManager.stats_changed.connect(_on_stats_changed)
     SkillManager.skills_changed.connect(_refresh_skills_ui)
@@ -143,6 +151,9 @@ func _unhandled_input(event: InputEvent) -> void:
         elif event.keycode == KEY_O:
             _toggle_skills()
             get_viewport().set_input_as_handled()
+        elif event.keycode == KEY_M:
+            _toggle_regions()
+            get_viewport().set_input_as_handled()
         elif event.keycode == KEY_ESCAPE:
             if _shop_open:
                 _toggle_shop(false)
@@ -158,6 +169,8 @@ func _unhandled_input(event: InputEvent) -> void:
                 _toggle_stats(false)
             elif is_instance_valid(_skills_panel) and _skills_panel.visible:
                 _toggle_skills(false)
+            elif is_instance_valid(_region_panel) and _region_panel.visible:
+                _toggle_regions(false)
             get_viewport().set_input_as_handled()
 
 func _interact() -> void:
@@ -258,9 +271,11 @@ func _schedule_monster_respawn(scene_path: String, spawn_position: Vector2, mons
         push_error("Scene monster gagal dimuat untuk respawn: " + scene_path)
         return
     var new_monster := monster_scene.instantiate()
-    add_child(new_monster)
-    new_monster.global_position = spawn_position
+    # Pasang callback sebelum node masuk SceneTree agar sinyal defeated
+    # sudah terhubung sejak awal siklus hidup monster respawn.
     _register_monster_signal(new_monster)
+    new_monster.position = spawn_position
+    add_child(new_monster)
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
     health_label.text = "HP Pemain: %d/%d" % [current, maximum]
@@ -340,6 +355,8 @@ func _toggle_inventory(force_state: Variant = null) -> void:
     _inventory_open = not _inventory_open if force_state == null else bool(force_state)
     _inventory_panel.visible = _inventory_open
     if _inventory_open:
+        if is_instance_valid(_region_panel):
+            _toggle_regions(false)
         _toggle_shop(false)
         if is_instance_valid(_breeding_panel):
             _toggle_breeding(false)
@@ -503,6 +520,8 @@ func _toggle_shop(force_state: Variant = null) -> void:
     _shop_open = not _shop_open if force_state == null else bool(force_state)
     _shop_panel.visible = _shop_open
     if _shop_open:
+        if is_instance_valid(_region_panel):
+            _toggle_regions(false)
         if is_instance_valid(_stats_panel):
             _toggle_stats(false)
         _toggle_inventory(false)
@@ -578,6 +597,8 @@ func _toggle_breeding(force_state: Variant = null) -> void:
     var open := not _breeding_panel.visible if force_state == null else bool(force_state)
     _breeding_panel.visible = open
     if open:
+        if is_instance_valid(_region_panel):
+            _toggle_regions(false)
         if is_instance_valid(_stats_panel):
             _toggle_stats(false)
         _toggle_shop(false)
@@ -664,6 +685,8 @@ func _toggle_property(force_state: Variant = null) -> void:
     var open := not _property_panel.visible if force_state == null else bool(force_state)
     _property_panel.visible = open
     if open:
+        if is_instance_valid(_region_panel):
+            _toggle_regions(false)
         if is_instance_valid(_stats_panel):
             _toggle_stats(false)
         _toggle_shop(false)
@@ -736,11 +759,8 @@ func _property_action(action: String, land_id: String) -> void:
     SaveManager.save_game()
 
 func _get_current_land_spawn_position() -> Vector2:
-    var data: Dictionary = PropertyManager.get_land_data(PropertyManager.current_land_id)
-    var spawn_pos: Array = data.get("spawn_position", [PLAYER_START_POSITION.x, PLAYER_START_POSITION.y])
-    if spawn_pos.size() < 2:
-        return PLAYER_START_POSITION
-    return Vector2(float(spawn_pos[0]), float(spawn_pos[1]))
+    # Respawn mengikuti wilayah eksplorasi aktif, bukan titik lahan properti.
+    return RegionManager.get_spawn_position()
 
 func _apply_current_land_position() -> void:
     if not is_instance_valid(pond):
@@ -749,10 +769,28 @@ func _apply_current_land_position() -> void:
     if data.is_empty():
         return
     var pond_pos: Array = data.get("pond_position", [520, 270])
-    var spawn_pos: Array = data.get("spawn_position", [380, 270])
     pond.position = Vector2(float(pond_pos[0]), float(pond_pos[1]))
     if is_instance_valid(player):
-        player.global_position = Vector2(float(spawn_pos[0]), float(spawn_pos[1]))
+        player.global_position = RegionManager.get_spawn_position()
+
+func _apply_current_region_appearance() -> void:
+    var data := RegionManager.get_current_region_data()
+    var tint_value = data.get("ground_tint", [1.0, 1.0, 1.0])
+    if typeof(tint_value) == TYPE_ARRAY and tint_value.size() >= 3:
+        ground_visual.modulate = Color(float(tint_value[0]), float(tint_value[1]), float(tint_value[2]), 1.0)
+
+func _refresh_region_label() -> void:
+    region_label.text = "Wilayah: %s | M: Peta Wilayah" % RegionManager.get_current_region_name()
+
+func _on_region_changed(_region_id: String) -> void:
+    _apply_current_region_appearance()
+    if is_instance_valid(player):
+        player.global_position = RegionManager.get_spawn_position()
+    _refresh_region_label()
+    _refresh_money()
+    if is_instance_valid(_region_panel) and _region_panel.visible:
+        _refresh_region_ui()
+    _show_message("Wilayah saat ini: %s." % RegionManager.get_current_region_name())
 
 func _on_relocation_started(land_id: String) -> void:
     if _relocating:
@@ -839,6 +877,8 @@ func _toggle_quest(force_state: Variant = null) -> void:
     var open := not _quest_panel.visible if force_state == null else bool(force_state)
     _quest_panel.visible = open
     if open:
+        if is_instance_valid(_region_panel):
+            _toggle_regions(false)
         if is_instance_valid(_stats_panel):
             _toggle_stats(false)
         _toggle_inventory(false)
@@ -894,6 +934,85 @@ func _claim_quest_reward(quest_id: String) -> void:
     _refresh_quest_ui()
     SaveManager.save_game()
 
+func _create_region_ui() -> void:
+    _region_panel = PanelContainer.new()
+    _region_panel.name = "RegionPanel"
+    _region_panel.position = Vector2(250, 75)
+    _region_panel.size = Vector2(460, 390)
+    _region_panel.custom_minimum_size = Vector2(460, 390)
+    _region_panel.visible = false
+    $CanvasLayer.add_child(_region_panel)
+    var outer := VBoxContainer.new()
+    _region_panel.add_child(outer)
+    var header := HBoxContainer.new()
+    outer.add_child(header)
+    var title := Label.new()
+    title.text = "PETA WILAYAH"
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    header.add_child(title)
+    var close_button := Button.new()
+    close_button.text = "TUTUP"
+    close_button.pressed.connect(_toggle_regions.bind(false))
+    header.add_child(close_button)
+    var scroll := ScrollContainer.new()
+    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    outer.add_child(scroll)
+    _region_content = VBoxContainer.new()
+    _region_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(_region_content)
+    _refresh_region_ui()
+
+func _toggle_regions(force_state: Variant = null) -> void:
+    if not is_instance_valid(_region_panel):
+        return
+    var open := not _region_panel.visible if force_state == null else bool(force_state)
+    _region_panel.visible = open
+    if open:
+        _toggle_inventory(false)
+        _toggle_shop(false)
+        _toggle_breeding(false)
+        _toggle_property(false)
+        _toggle_quest(false)
+        _toggle_stats(false)
+        _toggle_skills(false)
+        _refresh_region_ui()
+
+func _refresh_region_ui() -> void:
+    if not is_instance_valid(_region_content):
+        return
+    for child in _region_content.get_children():
+        _region_content.remove_child(child)
+        child.free()
+    var intro := Label.new()
+    intro.text = "Pilih wilayah. Area yang terkunci membutuhkan Job Level tertentu."
+    intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    _region_content.add_child(intro)
+    for region_id in RegionManager.get_region_ids():
+        var data := RegionManager.get_region_data(region_id)
+        var row := VBoxContainer.new()
+        _region_content.add_child(row)
+        var button := Button.new()
+        var required_level := int(data.get("min_job_level", 1))
+        var is_current := region_id == RegionManager.current_region_id
+        var suffix := " — WILAYAH SAAT INI" if is_current else (" — Job Lv.%d" % required_level)
+        button.text = "%s%s" % [str(data.get("name", region_id)), suffix]
+        button.disabled = is_current or not RegionManager.can_access(region_id)
+        button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        button.pressed.connect(_travel_to_region.bind(region_id))
+        row.add_child(button)
+        var description := Label.new()
+        description.text = str(data.get("description", ""))
+        description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        row.add_child(description)
+
+func _travel_to_region(region_id: String) -> void:
+    var result: Dictionary = RegionManager.travel_to(region_id)
+    _show_message(str(result.get("message", "Perjalanan diproses.")))
+    if bool(result.get("ok", false)):
+        _toggle_regions(false)
+        SaveManager.save_game()
+        _refresh_money()
+
 func _create_stats_ui() -> void:
     _stats_panel = PanelContainer.new()
     _stats_panel.name = "StatsPanel"
@@ -922,6 +1041,8 @@ func _toggle_stats(force_state: Variant = null) -> void:
         return
     _stats_panel.visible = not _stats_panel.visible if force_state == null else bool(force_state)
     if _stats_panel.visible:
+        if is_instance_valid(_region_panel):
+            _toggle_regions(false)
         _toggle_inventory(false)
         _toggle_shop(false)
         if is_instance_valid(_breeding_panel):
@@ -1005,6 +1126,8 @@ func _toggle_skills(force_state: Variant = null) -> void:
     var open := not _skills_panel.visible if force_state == null else bool(force_state)
     _skills_panel.visible = open
     if open:
+        if is_instance_valid(_region_panel):
+            _toggle_regions(false)
         _toggle_inventory(false)
         _toggle_shop(false)
         _toggle_stats(false)
@@ -1122,6 +1245,12 @@ func _create_mobile_controls() -> void:
     stats_button.size = Vector2(100, 54)
     $CanvasLayer.add_child(stats_button)
     stats_button.pressed.connect(_toggle_stats)
+    var region_button := Button.new()
+    region_button.text = "WILAYAH"
+    region_button.position = Vector2(510, 420)
+    region_button.size = Vector2(100, 58)
+    $CanvasLayer.add_child(region_button)
+    region_button.pressed.connect(_toggle_regions)
 
 func _add_touch_button(caption: String, button_position: Vector2, action: StringName, button_size: Vector2 = Vector2(58, 52)) -> void:
     var touch_button := Button.new()

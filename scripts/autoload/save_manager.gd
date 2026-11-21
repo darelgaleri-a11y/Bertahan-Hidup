@@ -3,7 +3,7 @@ extends Node
 const SAVE_PATH := "user://savegame.json"
 const TEMP_PATH := "user://savegame.json.tmp"
 const BACKUP_PATH := "user://savegame_backup.json"
-const SAVE_VERSION := 5
+const SAVE_VERSION := 6
 
 func save_game() -> bool:
     FarmManager.update_offline()
@@ -11,6 +11,7 @@ func save_game() -> bool:
         "version": SAVE_VERSION,
         "saved_at": int(Time.get_unix_time_from_system()),
         "money": GameManager.money,
+        "region": RegionManager.get_save_data(),
         "farm_value": GameManager.farm_value,
         "job_level": GameManager.job_level,
         "inventory": InventoryManager.items,
@@ -92,6 +93,9 @@ func load_game() -> bool:
     GameManager.farm_value = maxi(0, int(parsed.get("farm_value", 0)))
     GameManager.job_level = maxi(1, int(parsed.get("job_level", 1)))
     GameManager.recalculate_progression()
+    var saved_region_value = parsed.get("region", {})
+    var saved_region: Dictionary = saved_region_value if typeof(saved_region_value) == TYPE_DICTIONARY else {}
+    RegionManager.load_save_data(saved_region)
 
     InventoryManager.items = {}
     var saved_inventory: Dictionary = parsed.get("inventory", {})

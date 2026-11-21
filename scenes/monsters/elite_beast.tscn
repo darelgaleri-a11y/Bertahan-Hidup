@@ -12,6 +12,7 @@ collision_layer = 2
 collision_mask = 1
 monster_id = "monster_elite_beast"
 monster_name = "Monster Buas Elite"
+region_id = "danger_zone"
 required_job_level = 4
 max_health = 420
 attack_damage = 24

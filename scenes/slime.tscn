@@ -10,6 +10,7 @@ radius = 9.0
 script = ExtResource("1")
 monster_id = "monster_slime"
 monster_name = "Slime"
+region_id = "village"
 required_job_level = 1
 max_health = 50
 attack_damage = 5

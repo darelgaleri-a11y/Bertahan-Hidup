@@ -1,0 +1,58 @@
+{
+  "village": {
+    "name": "Desa",
+    "description": "Wilayah awal yang aman, tempat toko, misi, breeding, dan pengelola lahan berada.",
+    "min_job_level": 1,
+    "spawn_position": [
+      380,
+      270
+    ],
+    "ground_tint": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "forest": {
+    "name": "Hutan",
+    "description": "Area berburu Serigala Liar. Dibuka sejak Job Level 1.",
+    "min_job_level": 1,
+    "spawn_position": [
+      380,
+      270
+    ],
+    "ground_tint": [
+      0.78,
+      0.94,
+      0.76
+    ]
+  },
+  "cave": {
+    "name": "Gua",
+    "description": "Area berbahaya untuk melawan Tengkorak dan Goblin. Membutuhkan Job Level 3.",
+    "min_job_level": 3,
+    "spawn_position": [
+      380,
+      270
+    ],
+    "ground_tint": [
+      0.76,
+      0.82,
+      0.93
+    ]
+  },
+  "danger_zone": {
+    "name": "Zona Bahaya",
+    "description": "Wilayah tantangan tertinggi, dihuni Monster Buas Elite dan Penjaga Hutan. Membutuhkan Job Level 5.",
+    "min_job_level": 5,
+    "spawn_position": [
+      380,
+      270
+    ],
+    "ground_tint": [
+      1.0,
+      0.78,
+      0.72
+    ]
+  }
+}
