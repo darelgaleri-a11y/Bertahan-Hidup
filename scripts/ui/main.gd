@@ -39,7 +39,6 @@ var _last_npc_id: String = ""
 var _pending_monster_respawns: Array[Dictionary] = []
 
 const NPC_INTERACTION_RANGE := 62.0
-
 const FARM_TICK_INTERVAL := 1.0
 const AUTOSAVE_INTERVAL := 30.0
 const PLAYER_START_POSITION := Vector2(380, 270)
@@ -122,9 +121,7 @@ func _process(delta: float) -> void:
                     break
         if not still_near_last_npc:
             _last_npc_id = ""
-
     _process_pending_monster_respawns()
-
     if not bool(player.get("is_defeated")):
         if Input.is_action_just_pressed("interact"):
             _interact()
@@ -177,12 +174,10 @@ func _unhandled_input(event: InputEvent) -> void:
             get_viewport().set_input_as_handled()
 
 func _interact() -> void:
-    # Aktivitas ekonomi dan NPC properti hanya tersedia di Desa.
     if RegionManager.current_region_id != "village":
         _last_npc_id = ""
         _show_message("Fasilitas Desa tidak tersedia di wilayah ini. Kembali ke Desa untuk mengelolanya.")
         return
-    # NPC diprioritaskan agar interaksi tidak salah diarahkan ke kolam di dekatnya.
     var nearest_npc: Node2D = null
     var nearest_npc_distance := NPC_INTERACTION_RANGE
     for npc in get_tree().get_nodes_in_group("npcs"):
@@ -192,11 +187,9 @@ func _interact() -> void:
         if npc_distance <= nearest_npc_distance:
             nearest_npc = npc
             nearest_npc_distance = npc_distance
-
     if nearest_npc != null:
         _interact_with_npc(nearest_npc)
         return
-
     _last_npc_id = ""
     var distance := player.global_position.distance_to(pond.global_position)
     if distance > 95.0:
@@ -223,12 +216,10 @@ func _interact_with_npc(npc: Node2D) -> void:
     var npc_id := str(npc.get("npc_id"))
     var npc_name := str(npc.get("display_name"))
     var greeting := str(npc.get("greeting"))
-
     if npc_id != _last_npc_id:
         _last_npc_id = npc_id
         _show_message("%s: %s" % [npc_name, greeting])
         return
-
     if npc_id == "shopkeeper":
         _toggle_shop(true)
         _show_message("Toko dibuka. Pilih perlengkapan yang ingin dibeli.")
@@ -274,22 +265,20 @@ func _schedule_monster_respawn(scene_path: String, spawn_position: Vector2, mons
     await get_tree().create_timer(8.0).timeout
     if not is_inside_tree():
         return
+    if scene_path.is_empty():
+        push_warning("Respawn monster dilewati karena path scene kosong.")
+        return
     var monster_scene := load(scene_path) as PackedScene
     if monster_scene == null:
         push_error("Scene monster gagal dimuat untuk respawn: " + scene_path)
         return
-
     var monster_region := _get_region_for_monster_scene(scene_path)
-    # Setiap scene monster hanya boleh memiliki satu respawn tertunda.
-    # Ini mencegah antrean berlipat saat pemain bolak-balik antarwilayah.
     for pending in _pending_monster_respawns:
         if str(pending.get("scene_path", "")) == scene_path:
             return
     if _has_live_monster_scene(scene_path):
-        # Instance yang sudah hidup membuat antrean lama tidak relevan.
         _remove_pending_monster_respawn(scene_path)
         return
-
     if monster_region == RegionManager.current_region_id:
         _spawn_respawned_monster(monster_scene, spawn_position)
     else:
@@ -314,16 +303,15 @@ func _has_live_monster_scene(scene_path: String) -> bool:
             continue
         if not monster.is_inside_tree() or bool(monster.get("_dead")):
             continue
-        var monster_scene_path := str(monster.scene_file_path)
-        if monster_scene_path == scene_path:
+        if str(monster.scene_file_path) == scene_path:
             return true
     return false
 
 func _spawn_respawned_monster(monster_scene: PackedScene, spawn_position: Vector2) -> void:
     var new_monster := monster_scene.instantiate()
-    _register_monster_signal(new_monster)
-    new_monster.position = spawn_position
     add_child(new_monster)
+    new_monster.position = spawn_position
+    _register_monster_signal(new_monster)
 
 func _process_pending_monster_respawns() -> void:
     for i in range(_pending_monster_respawns.size() - 1, -1, -1):
@@ -331,7 +319,7 @@ func _process_pending_monster_respawns() -> void:
         if str(pending.get("region_id", "")) != RegionManager.current_region_id:
             continue
         var monster_scene := pending.get("scene") as PackedScene
-        var spawn_position: Vector2 = pending.get("position", Vector2(380, 270))
+        var spawn_position: Vector2 = pending.get("position", PLAYER_START_POSITION)
         var scene_path := str(pending.get("scene_path", ""))
         if _has_live_monster_scene(scene_path):
             _pending_monster_respawns.remove_at(i)
@@ -344,7 +332,6 @@ func _process_pending_monster_respawns() -> void:
         _pending_monster_respawns.remove_at(i)
 
 func _get_region_for_monster_scene(scene_path: String) -> String:
-    # Fallback menggunakan katalog wilayah dan identitas scene monster.
     var scene_name := scene_path.get_file().get_basename()
     match scene_name:
         "slime": return "village"
@@ -490,75 +477,55 @@ func _refresh_inventory() -> void:
         item_label.text = "%s x%d" % [InventoryManager.get_item_name(item_id), InventoryManager.get_amount(item_id)]
         item_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         row.add_child(item_label)
-        var equipment_data := EquipmentManager.get_item_equipment_data(item_id)
-        if not equipment_data.is_empty():
+        if not EquipmentManager.get_item_equipment_data(item_id).is_empty():
             var equip_button := Button.new()
-            equip_button.text = "Pakai"
-            equip_button.custom_minimum_size = Vector2(70, 42)
+            equip_button.text = "PAKAI"
             equip_button.pressed.connect(_equip_item.bind(item_id))
             row.add_child(equip_button)
-        var price := InventoryManager.get_sell_price(item_id)
-        if price > 0:
+        if InventoryManager.get_sell_price(item_id) > 0:
             var sell_button := Button.new()
-            sell_button.text = "Jual %d" % price
-            sell_button.custom_minimum_size = Vector2(90, 42)
+            sell_button.text = "JUAL 1"
             sell_button.pressed.connect(_sell_item.bind(item_id))
             row.add_child(sell_button)
-
-func _unequip_item(slot: String) -> void:
-    var result: Dictionary = EquipmentManager.unequip_slot(slot)
-    _show_message(str(result.get("message", "Perlengkapan diproses.")))
-    _refresh_inventory()
-    SaveManager.save_game()
 
 func _equip_item(item_id: String) -> void:
     var result: Dictionary = EquipmentManager.equip_item(item_id)
     _show_message(str(result.get("message", "Perlengkapan diproses.")))
     _refresh_inventory()
     _refresh_money()
-    SaveManager.save_game()
 
-func _on_equipment_changed() -> void:
-    if is_instance_valid(player):
-        var current_hp := int(player.get("health"))
-        var new_max_hp := int(player.call("get_effective_max_health"))
-        player.set("health", mini(current_hp, new_max_hp))
-        _on_player_health_changed(int(player.get("health")), new_max_hp)
+func _unequip_item(slot: String) -> void:
+    var result: Dictionary = EquipmentManager.unequip_slot(slot)
+    _show_message(str(result.get("message", "Perlengkapan diproses.")))
     _refresh_inventory()
-    _refresh_stats_ui()
-    SaveManager.save_game()
 
 func _sell_item(item_id: String) -> void:
-    var price := InventoryManager.get_sell_price(item_id)
     if InventoryManager.sell_item(item_id, 1):
-        _show_message("%s terjual. +%d Money." % [InventoryManager.get_item_name(item_id), price])
+        _show_message("%s terjual." % InventoryManager.get_item_name(item_id))
     else:
-        _show_message("Penjualan gagal.")
-    _refresh_money()
+        _show_message("Item tidak dapat dijual.")
     _refresh_inventory()
+    _refresh_money()
+
+func _claim_loot() -> void:
+    var count := LootManager.claim_pending_loot()
+    _show_message("Mengambil %d item dari Peti Loot." % count)
+    _refresh_inventory()
+    _refresh_loot_button()
 
 func _refresh_loot_button() -> void:
     if not is_instance_valid(_loot_button):
         return
-    var pending := LootManager.get_pending_count()
-    _loot_button.text = "AMBIL LOOT (%d)" % pending
-    _loot_button.disabled = pending <= 0
-
-func _claim_loot() -> void:
-    var claimed := LootManager.claim_pending_loot()
-    if claimed > 0:
-        _show_message("Berhasil mengambil %d item dari Peti Loot." % claimed)
-    else:
-        _show_message("Inventory penuh. Kosongkan slot atau stack terlebih dahulu.")
-    _refresh_inventory()
-    _refresh_loot_button()
+    var count := LootManager.get_pending_count()
+    _loot_button.text = "AMBIL LOOT (%d)" % count
+    _loot_button.disabled = count <= 0
 
 func _create_shop_ui() -> void:
     _shop_panel = PanelContainer.new()
     _shop_panel.name = "ShopPanel"
-    _shop_panel.position = Vector2(300, 115)
-    _shop_panel.size = Vector2(390, 390)
-    _shop_panel.custom_minimum_size = Vector2(390, 390)
+    _shop_panel.position = Vector2(285, 85)
+    _shop_panel.size = Vector2(390, 360)
+    _shop_panel.custom_minimum_size = Vector2(390, 360)
     _shop_panel.visible = false
     $CanvasLayer.add_child(_shop_panel)
     var outer := VBoxContainer.new()
@@ -566,7 +533,7 @@ func _create_shop_ui() -> void:
     var header := HBoxContainer.new()
     outer.add_child(header)
     var title := Label.new()
-    title.text = "TOKO PERLENGKAPAN"
+    title.text = "TOKO"
     title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     header.add_child(title)
     var close_button := Button.new()
@@ -575,96 +542,67 @@ func _create_shop_ui() -> void:
     header.add_child(close_button)
     _shop_money = Label.new()
     outer.add_child(_shop_money)
-    var hint := Label.new()
-    hint.text = "Pilih item untuk membeli 1 unit."
-    outer.add_child(hint)
     var scroll := ScrollContainer.new()
     scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
     outer.add_child(scroll)
-    var item_list := VBoxContainer.new()
-    item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    scroll.add_child(item_list)
-    for item_id in SHOP_ITEMS.keys():
-        var item_data: Dictionary = SHOP_ITEMS[item_id]
-        var buy_button := Button.new()
-        buy_button.text = "%s — %d Money" % [item_data["label"], item_data["price"]]
-        buy_button.custom_minimum_size = Vector2(0, 48)
-        buy_button.pressed.connect(_buy_item.bind(str(item_id)))
-        item_list.add_child(buy_button)
+    var list := VBoxContainer.new()
+    list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(list)
+    for item_id_value in SHOP_ITEMS.keys():
+        var item_id := str(item_id_value)
+        var data: Dictionary = SHOP_ITEMS[item_id]
+        var button := Button.new()
+        button.text = "%s — %d Money" % [str(data["label"]), int(data["price"])]
+        button.pressed.connect(_buy_item.bind(item_id))
+        list.add_child(button)
+    _refresh_money()
 
 func _toggle_shop(force_state: Variant = null) -> void:
     _shop_open = not _shop_open if force_state == null else bool(force_state)
     _shop_panel.visible = _shop_open
     if _shop_open:
+        _toggle_inventory(false)
         if is_instance_valid(_region_panel):
             _toggle_regions(false)
-        if is_instance_valid(_stats_panel):
-            _toggle_stats(false)
-        _toggle_inventory(false)
         if is_instance_valid(_breeding_panel):
             _toggle_breeding(false)
         if is_instance_valid(_property_panel):
             _toggle_property(false)
         if is_instance_valid(_quest_panel):
             _toggle_quest(false)
-    _refresh_money()
+        if is_instance_valid(_stats_panel):
+            _toggle_stats(false)
+        _refresh_money()
 
 func _buy_item(item_id: String) -> void:
     if not SHOP_ITEMS.has(item_id):
+        _show_message("Item toko tidak ditemukan.")
         return
-    var item_data: Dictionary = SHOP_ITEMS[item_id]
-    var price := int(item_data["price"])
-    if GameManager.money < price:
+    var data: Dictionary = SHOP_ITEMS[item_id]
+    var price := int(data["price"])
+    if not InventoryManager.can_add_item(item_id, 1):
+        _show_message("Inventory penuh atau stack sudah penuh.")
+        return
+    if not GameManager.spend_money(price):
         _show_message("Money tidak cukup.")
         return
-    if InventoryManager.get_amount(item_id) >= InventoryManager.get_stack_limit(item_id):
-        _show_message("Stack item sudah penuh.")
+    if not InventoryManager.add_item(item_id, 1):
+        GameManager.add_money(price)
+        _show_message("Pembelian gagal. Uang dikembalikan.")
         return
-    if InventoryManager.get_amount(item_id) == 0 and InventoryManager.get_used_slots() >= InventoryManager.SLOT_LIMIT:
-        _show_message("Inventory penuh.")
-        return
-    if GameManager.spend_money(price):
-        if InventoryManager.add_item(item_id, 1):
-            _show_message("%s berhasil dibeli." % item_data["label"])
-        else:
-            GameManager.add_money(price)
-            _show_message("Pembelian dibatalkan. Inventory tidak dapat menerima item.")
+    _show_message("%s berhasil dibeli." % str(data["label"]))
     _refresh_money()
-    _refresh_inventory()
 
 func _create_breeding_ui() -> void:
     _breeding_panel = PanelContainer.new()
     _breeding_panel.name = "BreedingPanel"
-    _breeding_panel.position = Vector2(285, 75)
-    _breeding_panel.size = Vector2(390, 390)
-    _breeding_panel.custom_minimum_size = Vector2(390, 390)
+    _breeding_panel.position = Vector2(270, 80)
+    _breeding_panel.size = Vector2(420, 370)
+    _breeding_panel.custom_minimum_size = Vector2(420, 370)
     _breeding_panel.visible = false
     $CanvasLayer.add_child(_breeding_panel)
-
-    var outer := VBoxContainer.new()
-    _breeding_panel.add_child(outer)
-    var header := HBoxContainer.new()
-    outer.add_child(header)
-    var title := Label.new()
-    title.text = "BREEDING BIBIT"
-    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    header.add_child(title)
-    var close_button := Button.new()
-    close_button.text = "TUTUP"
-    close_button.pressed.connect(_toggle_breeding.bind(false))
-    header.add_child(close_button)
-
-    var explanation := Label.new()
-    explanation.text = "Gunakan 2 bibit satu tier + biaya Money. Peluang sukses berbeda tiap tier."
-    explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    outer.add_child(explanation)
-
-    var scroll := ScrollContainer.new()
-    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-    outer.add_child(scroll)
     _breeding_content = VBoxContainer.new()
-    _breeding_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    scroll.add_child(_breeding_content)
+    _breeding_panel.add_child(_breeding_content)
     _refresh_breeding_ui()
 
 func _toggle_breeding(force_state: Variant = null) -> void:
@@ -673,16 +611,10 @@ func _toggle_breeding(force_state: Variant = null) -> void:
     var open := not _breeding_panel.visible if force_state == null else bool(force_state)
     _breeding_panel.visible = open
     if open:
+        _toggle_inventory(false)
+        _toggle_shop(false)
         if is_instance_valid(_region_panel):
             _toggle_regions(false)
-        if is_instance_valid(_stats_panel):
-            _toggle_stats(false)
-        _toggle_shop(false)
-        _toggle_inventory(false)
-        if is_instance_valid(_property_panel):
-            _toggle_property(false)
-        if is_instance_valid(_quest_panel):
-            _toggle_quest(false)
         _refresh_breeding_ui()
 
 func _refresh_breeding_ui() -> void:
@@ -691,69 +623,53 @@ func _refresh_breeding_ui() -> void:
     for child in _breeding_content.get_children():
         _breeding_content.remove_child(child)
         child.free()
-
-    var tier_ids := ["seed_basic", "seed_advanced", "seed_rare", "seed_epic"]
-    for seed_id in tier_ids:
-        var recipe: Dictionary = BreedingManager.get_recipe(seed_id)
-        if recipe.is_empty():
-            continue
-        var count := InventoryManager.get_amount(seed_id)
-        var row := VBoxContainer.new()
-        _breeding_content.add_child(row)
-        var detail := Label.new()
-        detail.text = "%s → %s | Milik: %d | Biaya: %d | Peluang: %d%%" % [
-            InventoryManager.get_item_name(seed_id),
-            InventoryManager.get_item_name(str(recipe["output"])),
-            count, int(recipe["fee"]), int(float(recipe["chance"]) * 100.0)
-        ]
-        detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        row.add_child(detail)
-        var action := Button.new()
-        action.text = "Gabungkan 2 Bibit"
-        action.disabled = count < 2 or GameManager.money < int(recipe["fee"])
-        action.custom_minimum_size = Vector2(0, 42)
-        action.pressed.connect(_attempt_breeding.bind(seed_id))
-        row.add_child(action)
-
-func _attempt_breeding(seed_id: String) -> void:
-    var result: Dictionary = BreedingManager.attempt_breeding(seed_id)
-    _show_message(str(result.get("message", "Breeding selesai.")))
-    _refresh_money()
-    _refresh_inventory()
-    _refresh_breeding_ui()
-
-func _create_property_ui() -> void:
-    _property_panel = PanelContainer.new()
-    _property_panel.name = "PropertyPanel"
-    _property_panel.position = Vector2(235, 55)
-    _property_panel.size = Vector2(490, 430)
-    _property_panel.custom_minimum_size = Vector2(490, 430)
-    _property_panel.visible = false
-    $CanvasLayer.add_child(_property_panel)
-
-    var outer := VBoxContainer.new()
-    _property_panel.add_child(outer)
     var header := HBoxContainer.new()
-    outer.add_child(header)
+    _breeding_content.add_child(header)
     var title := Label.new()
-    title.text = "LAHAN & PROPERTI"
+    title.text = "BREEDING BIBIT"
     title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     header.add_child(title)
     var close_button := Button.new()
     close_button.text = "TUTUP"
-    close_button.pressed.connect(_toggle_property.bind(false))
+    close_button.pressed.connect(_toggle_breeding.bind(false))
     header.add_child(close_button)
     var hint := Label.new()
-    hint.text = "Sewa berlaku 7 hari. Harga berikut adalah nilai uji sementara."
+    hint.text = "Pilih tier bibit. Dibutuhkan dua bibit yang sama dan biaya Money."
     hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    outer.add_child(hint)
-    var scroll := ScrollContainer.new()
-    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-    outer.add_child(scroll)
+    _breeding_content.add_child(hint)
+    for seed_id in BreedingManager.RECIPES.keys():
+        var recipe: Dictionary = BreedingManager.get_recipe(str(seed_id))
+        var button := Button.new()
+        button.text = "%s | Milik: %d | Biaya: %d | Peluang: %d%%" % [
+            str(recipe.get("label", seed_id)),
+            InventoryManager.get_amount(str(seed_id)),
+            int(recipe.get("fee", 0)),
+            int(float(recipe.get("chance", 0.0)) * 100.0)
+        ]
+        button.disabled = InventoryManager.get_amount(str(seed_id)) < 2 or GameManager.money < int(recipe.get("fee", 0))
+        button.pressed.connect(_attempt_breeding.bind(str(seed_id)))
+        _breeding_content.add_child(button)
+
+func _attempt_breeding(seed_id: String) -> void:
+    var result: Dictionary = BreedingManager.attempt_breeding(seed_id)
+    _show_message(str(result.get("message", "Breeding diproses.")))
+    _refresh_breeding_ui()
+    _refresh_inventory()
+    _refresh_money()
+    SaveManager.save_game()
+
+func _create_property_ui() -> void:
+    _property_panel = PanelContainer.new()
+    _property_panel.name = "PropertyPanel"
+    _property_panel.position = Vector2(250, 65)
+    _property_panel.size = Vector2(460, 410)
+    _property_panel.custom_minimum_size = Vector2(460, 410)
+    _property_panel.visible = false
+    $CanvasLayer.add_child(_property_panel)
     _property_content = VBoxContainer.new()
-    _property_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    scroll.add_child(_property_content)
+    _property_panel.add_child(_property_content)
     _refresh_property_ui()
+    PropertyManager.property_changed.connect(_refresh_property_ui)
 
 func _toggle_property(force_state: Variant = null) -> void:
     if not is_instance_valid(_property_panel):
@@ -761,15 +677,10 @@ func _toggle_property(force_state: Variant = null) -> void:
     var open := not _property_panel.visible if force_state == null else bool(force_state)
     _property_panel.visible = open
     if open:
+        _toggle_inventory(false)
+        _toggle_shop(false)
         if is_instance_valid(_region_panel):
             _toggle_regions(false)
-        if is_instance_valid(_stats_panel):
-            _toggle_stats(false)
-        _toggle_shop(false)
-        _toggle_inventory(false)
-        _toggle_breeding(false)
-        if is_instance_valid(_quest_panel):
-            _toggle_quest(false)
         _refresh_property_ui()
 
 func _refresh_property_ui() -> void:
@@ -778,64 +689,77 @@ func _refresh_property_ui() -> void:
     for child in _property_content.get_children():
         _property_content.remove_child(child)
         child.free()
-    var current_label := Label.new()
-    current_label.text = "Lokasi aktif: %s" % PropertyManager.get_current_land_name()
-    current_label.add_theme_color_override("font_color", Color(0.35, 0.85, 0.45))
-    _property_content.add_child(current_label)
-
-    for land_id_value in ["village", "forest", "lakeside"]:
+    var header := HBoxContainer.new()
+    _property_content.add_child(header)
+    var title := Label.new()
+    title.text = "PENGELOLA LAHAN"
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    header.add_child(title)
+    var close_button := Button.new()
+    close_button.text = "TUTUP"
+    close_button.pressed.connect(_toggle_property.bind(false))
+    header.add_child(close_button)
+    var scroll := ScrollContainer.new()
+    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    _property_content.add_child(scroll)
+    var list := VBoxContainer.new()
+    list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(list)
+    for land_id_value in PropertyManager.land_catalog.keys():
         var land_id := str(land_id_value)
         var data: Dictionary = PropertyManager.get_land_data(land_id)
         var status := PropertyManager.get_land_status(land_id)
         var row := VBoxContainer.new()
-        _property_content.add_child(row)
-        var detail := Label.new()
-        var status_text := status.to_upper()
-        if status == "rented":
-            status_text += " — sisa %d hari" % PropertyManager.get_remaining_rent_days(land_id)
-        detail.text = "%s | %s | Sewa: %d | Beli: %d | Job Lv.%d" % [
-            str(data.get("name", land_id)), status_text,
-            int(data.get("rent_price", 0)), int(data.get("buy_price", 0)),
-            int(data.get("min_job_level", 1))
+        list.add_child(row)
+        var label := Label.new()
+        label.text = "%s | %s | Sewa: %d | Beli: %d" % [
+            str(data.get("name", land_id)), status,
+            int(data.get("rent_price", 0)), int(data.get("buy_price", 0))
         ]
-        detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        row.add_child(detail)
+        row.add_child(label)
         var actions := HBoxContainer.new()
         row.add_child(actions)
-
         var rent_button := Button.new()
-        rent_button.text = "Sewa 7 Hari"
+        rent_button.text = "SEWA"
         rent_button.disabled = status == "owned" or GameManager.job_level < int(data.get("min_job_level", 1))
-        rent_button.pressed.connect(_property_action.bind("rent", land_id))
+        rent_button.pressed.connect(_rent_land.bind(land_id))
         actions.add_child(rent_button)
-
         var buy_button := Button.new()
-        buy_button.text = "Beli"
+        buy_button.text = "BELI"
         buy_button.disabled = status == "owned" or GameManager.job_level < int(data.get("min_job_level", 1))
-        buy_button.pressed.connect(_property_action.bind("buy", land_id))
+        buy_button.pressed.connect(_buy_land.bind(land_id))
         actions.add_child(buy_button)
-
         var move_button := Button.new()
-        move_button.text = "Pindah ke sini"
+        move_button.text = "PINDAH"
         move_button.disabled = not PropertyManager.can_access(land_id) or PropertyManager.current_land_id == land_id or _relocating
-        move_button.pressed.connect(_property_action.bind("move", land_id))
+        move_button.pressed.connect(_relocate_land.bind(land_id))
         actions.add_child(move_button)
+        if status == "rented":
+            var rent_info := Label.new()
+            rent_info.text = "Sisa sewa: %d hari" % PropertyManager.get_remaining_rent_days(land_id)
+            row.add_child(rent_info)
 
-func _property_action(action: String, land_id: String) -> void:
-    var result: Dictionary = {}
-    if action == "rent":
-        result = PropertyManager.rent_land(land_id)
-    elif action == "buy":
-        result = PropertyManager.buy_land(land_id)
-    elif action == "move":
-        result = PropertyManager.relocate_to(land_id)
-    _show_message(str(result.get("message", "Aksi properti selesai.")))
-    _refresh_money()
+func _rent_land(land_id: String) -> void:
+    var result: Dictionary = PropertyManager.rent_land(land_id)
+    _show_message(str(result.get("message", "Transaksi sewa diproses.")))
     _refresh_property_ui()
+    _refresh_money()
     SaveManager.save_game()
 
+func _buy_land(land_id: String) -> void:
+    var result: Dictionary = PropertyManager.buy_land(land_id)
+    _show_message(str(result.get("message", "Transaksi pembelian diproses.")))
+    _refresh_property_ui()
+    _refresh_money()
+    SaveManager.save_game()
+
+func _relocate_land(land_id: String) -> void:
+    var result: Dictionary = PropertyManager.relocate_to(land_id)
+    _show_message(str(result.get("message", "Perpindahan diproses.")))
+    _refresh_property_ui()
+    _refresh_money()
+
 func _get_current_land_spawn_position() -> Vector2:
-    # Respawn mengikuti wilayah eksplorasi aktif, bukan titik lahan properti.
     return RegionManager.get_spawn_position()
 
 func _apply_current_land_position() -> void:
@@ -846,8 +770,6 @@ func _apply_current_land_position() -> void:
         return
     var pond_pos: Array = data.get("pond_position", [520, 270])
     pond.position = Vector2(float(pond_pos[0]), float(pond_pos[1]))
-    # Relokasi lahan hanya mengubah posisi kolam. Posisi pemain tidak boleh
-    # dipindahkan otomatis karena ia mungkin sedang menjelajah wilayah lain.
 
 func _apply_current_region_appearance() -> void:
     var data := RegionManager.get_current_region_data()
@@ -881,15 +803,11 @@ func _on_relocation_started(land_id: String) -> void:
     if agent == null:
         _finish_relocation(land_id)
         return
-
-    var target_data: Dictionary = PropertyManager.get_land_data(land_id)
-    var spawn_arr: Array = target_data.get("spawn_position", [380, 270])
-    var target_position := Vector2(float(spawn_arr[0]), float(spawn_arr[1]))
     var start_position := agent.global_position
+    var target_position := Vector2(150, 180) if land_id == "forest" else Vector2(250, 180)
     var tween := create_tween()
     tween.tween_property(agent, "global_position", (start_position + target_position) * 0.5, 0.55)
     tween.tween_property(agent, "global_position", target_position + Vector2(-42, -24), 0.55)
-
     var cart := Sprite2D.new()
     cart.texture = load("res://assets/sprites/moving_cart.png")
     cart.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -905,7 +823,6 @@ func _on_relocation_started(land_id: String) -> void:
     )
 
 func _finish_relocation(land_id: String) -> void:
-    # Relokasi NPC dan kolam properti tidak memindahkan karakter dari wilayah eksplorasi.
     _apply_current_land_position()
     _relocating = false
     if is_instance_valid(_property_panel) and _property_panel.visible:
@@ -921,7 +838,6 @@ func _create_quest_ui() -> void:
     _quest_panel.custom_minimum_size = Vector2(440, 400)
     _quest_panel.visible = false
     $CanvasLayer.add_child(_quest_panel)
-
     var outer := VBoxContainer.new()
     _quest_panel.add_child(outer)
     var header := HBoxContainer.new()
@@ -934,12 +850,10 @@ func _create_quest_ui() -> void:
     close_button.text = "TUTUP"
     close_button.pressed.connect(_toggle_quest.bind(false))
     header.add_child(close_button)
-
     var hint := Label.new()
     hint.text = "Selesaikan tujuan misi. Hadiah hanya dapat diklaim satu kali."
     hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     outer.add_child(hint)
-
     var scroll := ScrollContainer.new()
     scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
     outer.add_child(scroll)
@@ -970,34 +884,27 @@ func _refresh_quest_ui() -> void:
     for child in _quest_content.get_children():
         _quest_content.remove_child(child)
         child.free()
-
     for quest_id_value in QuestManager.QUESTS.keys():
         var quest_id := str(quest_id_value)
         var data: Dictionary = QuestManager.get_quest_status(quest_id)
         var row := VBoxContainer.new()
         _quest_content.add_child(row)
-
         var title := Label.new()
         title.text = str(data.get("title", quest_id))
         title.add_theme_font_size_override("font_size", 18)
         row.add_child(title)
-
         var description := Label.new()
         description.text = str(data.get("description", ""))
         description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         row.add_child(description)
-
         var target := maxi(1, int(data.get("target", 1)))
         var current := int(data.get("progress", 0))
         var state_text := "Selesai" if bool(data.get("completed", false)) else "Progres"
         if bool(data.get("claimed", false)):
             state_text = "Hadiah sudah diambil"
         var progress_label := Label.new()
-        progress_label.text = "%s: %d/%d | Hadiah: %d Money" % [
-            state_text, current, target, int(data.get("reward", 0))
-        ]
+        progress_label.text = "%s: %d/%d | Hadiah: %d Money" % [state_text, current, target, int(data.get("reward", 0))]
         row.add_child(progress_label)
-
         var claim_button := Button.new()
         claim_button.text = "AMBIL HADIAH"
         claim_button.disabled = not bool(data.get("completed", false)) or bool(data.get("claimed", false))
@@ -1259,6 +1166,9 @@ func _refresh_skills_ui() -> void:
         row.add_child(use_button)
 
 func _cast_skill(skill_id: String) -> void:
+    if not is_instance_valid(player) or bool(player.get("is_defeated")):
+        _show_message("Pemain tidak dapat menggunakan skill saat kalah.")
+        return
     var target: Node2D = null
     if skill_id == "power_strike":
         var nearest_distance := 48.0

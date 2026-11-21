@@ -22,7 +22,6 @@ func save_game() -> bool:
         "skills": SkillManager.get_save_data(),
         "pond": FarmManager.get_save_data()
     }
-
     var file := FileAccess.open(TEMP_PATH, FileAccess.WRITE)
     if file == null:
         push_error("Gagal membuka file sementara untuk menyimpan game.")
@@ -40,7 +39,6 @@ func save_game() -> bool:
     var temp_absolute := ProjectSettings.globalize_path(TEMP_PATH)
     var backup_absolute := ProjectSettings.globalize_path(BACKUP_PATH)
     var had_save := FileAccess.file_exists(SAVE_PATH)
-
     if had_save:
         if FileAccess.file_exists(BACKUP_PATH):
             DirAccess.remove_absolute(backup_absolute)
@@ -78,11 +76,16 @@ func _read_save_file(path: String) -> Dictionary:
         return {}
     if typeof(parsed.get("inventory")) != TYPE_DICTIONARY or typeof(parsed.get("pond")) != TYPE_DICTIONARY:
         return {}
-    # Versi save masa depan tidak boleh dibaca oleh kode yang belum mendukungnya.
     var save_version = parsed.get("version", 1)
-    if typeof(save_version) != TYPE_INT and typeof(save_version) != TYPE_FLOAT:
+    if (typeof(save_version) != TYPE_INT and typeof(save_version) != TYPE_FLOAT):
         return {}
     if int(save_version) < 1 or int(save_version) > SAVE_VERSION:
+        return {}
+    var raw_money = parsed.get("money", null)
+    if typeof(raw_money) != TYPE_INT and typeof(raw_money) != TYPE_FLOAT:
+        return {}
+    var raw_farm_value = parsed.get("farm_value", 0)
+    if typeof(raw_farm_value) != TYPE_INT and typeof(raw_farm_value) != TYPE_FLOAT:
         return {}
     return parsed
 
@@ -107,7 +110,6 @@ func load_game() -> bool:
     var saved_inventory: Dictionary = parsed.get("inventory", {})
     for item_id in saved_inventory.keys():
         var raw_amount = saved_inventory[item_id]
-        # Abaikan data item yang rusak/non-numerik dan biarkan katalog memvalidasi ID.
         if typeof(raw_amount) == TYPE_INT or typeof(raw_amount) == TYPE_FLOAT:
             var amount := maxi(0, int(raw_amount))
             if amount > 0:
@@ -131,7 +133,6 @@ func load_game() -> bool:
     var saved_skills_value = parsed.get("skills", {})
     var saved_skills: Dictionary = saved_skills_value if typeof(saved_skills_value) == TYPE_DICTIONARY else {}
     SkillManager.load_save_data(saved_skills)
-
     GameManager.money_changed.emit(GameManager.money)
     GameManager.farm_value_changed.emit(GameManager.farm_value)
     InventoryManager.inventory_changed.emit()
