@@ -33,7 +33,7 @@ const STAT_DESCRIPTIONS := {
     "defense": "Mengurangi damage yang diterima.",
     "agility": "Menambah kecepatan gerak.",
     "ability": "Disiapkan untuk efektivitas skill.",
-    "stamina": "Disiapkan untuk sistem stamina dan aktivitas."
+    "stamina": "Menambah stamina maksimum dan kecepatan regenerasi stamina."
 }
 
 func _ready() -> void:
@@ -64,3 +64,4 @@ func get_stat_description(stat_name: String) -> String:
 func get_save_data() -> Dictionary:
     # Status berasal dari Job Level; tidak perlu disimpan terpisah agar tidak desinkron.
     return {"derived_from_job_level": true}
+

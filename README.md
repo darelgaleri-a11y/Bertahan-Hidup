@@ -120,3 +120,14 @@ Godot executable tidak tersedia pada lingkungan pembuatan paket ini. Karena itu 
 - Strength menambah damage dasar, Vitality menambah HP maksimum, Defense mengurangi damage masuk, dan Agility menambah kecepatan gerak.
 - Ability dan Stamina saat ini merupakan atribut dasar yang disiapkan untuk Skill System dan Stamina System pada tahap berikutnya.
 - Bonus equipment ditambahkan pada efek atribut yang sudah aktif.
+
+
+## Skill System (pembaruan terbaru)
+- Buka panel Skill dengan tombol `O` (PC) atau tombol `SKILL` (layar sentuh).
+- `K`: Power Strike, serangan kuat; terbuka sejak Job Level 1.
+- `L`: Recovery, memulihkan HP; terbuka mulai Job Level 2.
+- Power Strike membutuhkan 20 stamina dan cooldown 3 detik.
+- Recovery membutuhkan 30 stamina dan cooldown 15 detik.
+- Stamina maksimum = nilai Stamina karakter × 10; regenerasi dasar 2/detik ditambah pengaruh Ability.
+- Setiap skill naik satu level setiap 5 penggunaan berhasil, maksimal Level 5.
+- Level skill dan stamina disimpan dalam save game versi 5.

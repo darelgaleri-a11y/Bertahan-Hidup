@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2"]
@@ -9,6 +9,11 @@
 [ext_resource type="PackedScene" path="res://scenes/npcs/breeder.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/npcs/property_agent.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/npcs/quest_board.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/monsters/wolf.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/monsters/skeleton.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/monsters/goblin.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/monsters/elite_beast.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://scenes/monsters/boss.tscn" id="14"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -66,7 +71,7 @@ offset_left = 650.0
 offset_top = 18.0
 offset_right = 940.0
 offset_bottom = 58.0
-text = "Monster: Slime | J/Space: Serang"
+text = "Monster: Area sekitar | J/Space: Serang"
 
 [node name="PlayerHealth" type="Label" parent="CanvasLayer"]
 offset_left = 650.0
@@ -86,3 +91,18 @@ position = Vector2(150, 180)
 
 [node name="QuestBoard" parent="." instance=ExtResource("9")]
 position = Vector2(520, 145)
+
+[node name="WildWolf" parent="." instance=ExtResource("10")]
+position = Vector2(760, 170)
+
+[node name="Skeleton" parent="." instance=ExtResource("11")]
+position = Vector2(820, 350)
+
+[node name="Goblin" parent="." instance=ExtResource("12")]
+position = Vector2(700, 430)
+
+[node name="EliteBeast" parent="." instance=ExtResource("13")]
+position = Vector2(900, 180)
+
+[node name="ForestBoss" parent="." instance=ExtResource("14")]
+position = Vector2(900, 430)

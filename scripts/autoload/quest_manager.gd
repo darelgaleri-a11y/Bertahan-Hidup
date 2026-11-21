@@ -15,7 +15,7 @@ const QUESTS := {
         "title": "Pemburu Slime",
         "description": "Kalahkan Slime sebanyak 3 kali.",
         "event": "monster_kill",
-        "target_id": "slime",
+        "target_id": "monster_slime",
         "target": 3,
         "reward": 150
     },
@@ -26,6 +26,46 @@ const QUESTS := {
         "target_id": "slime_gel",
         "target": 5,
         "reward": 125
+    },
+    "wolf_hunter": {
+        "title": "Pemburu Serigala",
+        "description": "Kalahkan 3 Serigala Liar.",
+        "event": "monster_kill",
+        "target_id": "monster_wolf",
+        "target": 3,
+        "reward": 200
+    },
+    "skeleton_slayer": {
+        "title": "Penakluk Tengkorak",
+        "description": "Kalahkan 3 Tengkorak.",
+        "event": "monster_kill",
+        "target_id": "monster_skeleton",
+        "target": 3,
+        "reward": 275
+    },
+    "goblin_hunter": {
+        "title": "Pemburu Goblin",
+        "description": "Kalahkan 3 Goblin.",
+        "event": "monster_kill",
+        "target_id": "monster_goblin",
+        "target": 3,
+        "reward": 350
+    },
+    "elite_challenge": {
+        "title": "Tantangan Elite",
+        "description": "Kalahkan 1 Monster Buas Elite.",
+        "event": "monster_kill",
+        "target_id": "monster_elite_beast",
+        "target": 1,
+        "reward": 500
+    },
+    "boss_hunter": {
+        "title": "Penjaga Hutan",
+        "description": "Kalahkan Penjaga Hutan.",
+        "event": "monster_kill",
+        "target_id": "monster_boss",
+        "target": 1,
+        "reward": 1000
     }
 }
 

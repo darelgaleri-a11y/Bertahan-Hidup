@@ -25,6 +25,8 @@ var _quest_panel: PanelContainer
 var _quest_content: VBoxContainer
 var _stats_panel: PanelContainer
 var _stats_content: VBoxContainer
+var _skills_panel: PanelContainer
+var _skills_content: VBoxContainer
 var _relocation_cart: Sprite2D
 var _relocating: bool = false
 var _inventory_open := false
@@ -36,7 +38,6 @@ const NPC_INTERACTION_RANGE := 62.0
 const FARM_TICK_INTERVAL := 1.0
 const AUTOSAVE_INTERVAL := 30.0
 const PLAYER_START_POSITION := Vector2(380, 270)
-const SLIME_RESPAWN_POSITION := Vector2(700, 270)
 const SHOP_ITEMS := {
     "seed_basic": {"price": 75, "label": "Bibit Basic"},
     "feed_basic": {"price": 10, "label": "Pakan Basic"},
@@ -71,12 +72,15 @@ func _ready() -> void:
     _refresh_money()
     _refresh_inventory()
     _on_player_health_changed(int(player.get("health")), int(player.call("get_effective_max_health")))
-    _show_message("E: interaksi | I: inventory/perlengkapan | B: toko | J/Space: serang.")
+    _show_message("E: interaksi | I: inventory | B: toko | P: status | O: skill | K: Power Strike | L: Recovery.")
     _create_property_ui()
     _create_quest_ui()
     _create_stats_ui()
     QuestManager.quests_changed.connect(_refresh_quest_ui)
     StatsManager.stats_changed.connect(_on_stats_changed)
+    SkillManager.skills_changed.connect(_refresh_skills_ui)
+    SkillManager.stamina_changed.connect(_on_stamina_changed)
+    _create_skills_ui()
 
 func _process(delta: float) -> void:
     _farm_tick_timer += delta
@@ -118,6 +122,15 @@ func _unhandled_input(event: InputEvent) -> void:
         elif event.keycode == KEY_P:
             _toggle_stats()
             get_viewport().set_input_as_handled()
+        elif event.keycode == KEY_K:
+            _cast_skill("power_strike")
+            get_viewport().set_input_as_handled()
+        elif event.keycode == KEY_L:
+            _cast_skill("recovery")
+            get_viewport().set_input_as_handled()
+        elif event.keycode == KEY_O:
+            _toggle_skills()
+            get_viewport().set_input_as_handled()
         elif event.keycode == KEY_ESCAPE:
             if _shop_open:
                 _toggle_shop(false)
@@ -131,6 +144,8 @@ func _unhandled_input(event: InputEvent) -> void:
                 _toggle_quest(false)
             elif is_instance_valid(_stats_panel) and _stats_panel.visible:
                 _toggle_stats(false)
+            elif is_instance_valid(_skills_panel) and _skills_panel.visible:
+                _toggle_skills(false)
             get_viewport().set_input_as_handled()
 
 func _interact() -> void:
@@ -213,26 +228,26 @@ func _attack() -> void:
                 nearest.connect("defeated", callback)
         var damage := int(player.call("get_attack_damage"))
         nearest.take_damage(damage)
-        _show_message("Serangan mengenai Slime: %d damage." % damage)
+        _show_message("Serangan mengenai %s: %d damage." % [str(nearest.get("monster_name")), damage])
     else:
         _show_message("Tidak ada monster dalam jangkauan serangan.")
 
-func _on_monster_defeated(loot_summary: String) -> void:
-    _show_message("Slime dikalahkan! Loot: " + loot_summary)
-    combat_label.text = "Loot: " + loot_summary
-    _schedule_slime_respawn()
+func _on_monster_defeated(monster_id: String, monster_name: String, loot_summary: String, spawn_position: Vector2, scene_path: String) -> void:
+    _show_message("%s dikalahkan! Loot: %s" % [monster_name, loot_summary])
+    combat_label.text = "%s | Loot: %s" % [monster_name, loot_summary]
+    _schedule_monster_respawn(scene_path, spawn_position, monster_name)
 
-func _schedule_slime_respawn() -> void:
-    await get_tree().create_timer(5.0).timeout
+func _schedule_monster_respawn(scene_path: String, spawn_position: Vector2, monster_name: String) -> void:
+    await get_tree().create_timer(8.0).timeout
     if not is_inside_tree():
         return
-    var slime_scene := load("res://scenes/slime.tscn") as PackedScene
-    if slime_scene == null:
-        push_error("Scene Slime gagal dimuat untuk respawn.")
+    var monster_scene := load(scene_path) as PackedScene
+    if monster_scene == null:
+        push_error("Scene monster gagal dimuat untuk respawn: " + scene_path)
         return
-    var new_slime := slime_scene.instantiate()
-    new_slime.global_position = SLIME_RESPAWN_POSITION
-    add_child(new_slime)
+    var new_monster := monster_scene.instantiate()
+    add_child(new_monster)
+    new_monster.global_position = spawn_position
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
     health_label.text = "HP Pemain: %d/%d" % [current, maximum]
@@ -949,14 +964,111 @@ func _refresh_stats_ui() -> void:
     equipment_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     _stats_content.add_child(equipment_label)
     var derived_label := Label.new()
-    derived_label.text = "Efek aktif: Damage %d | HP Maks %d | Defense %d | Kecepatan %.0f" % [
+    derived_label.text = "Efek aktif: Damage %d | HP Maks %d | Defense %d | Kecepatan %.0f | Stamina %.0f/%.0f" % [
         int(player.call("get_attack_damage")),
         int(player.call("get_effective_max_health")),
         StatsManager.get_stat("defense") + int(EquipmentManager.get_total_stat("defense")),
-        float(player.call("get_effective_move_speed"))
+        float(player.call("get_effective_move_speed")),
+        SkillManager.get_stamina(), SkillManager.get_max_stamina()
     ]
     derived_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     _stats_content.add_child(derived_label)
+
+func _create_skills_ui() -> void:
+    _skills_panel = PanelContainer.new()
+    _skills_panel.name = "SkillsPanel"
+    _skills_panel.position = Vector2(285, 75)
+    _skills_panel.size = Vector2(390, 330)
+    _skills_panel.custom_minimum_size = Vector2(390, 330)
+    _skills_panel.visible = false
+    $CanvasLayer.add_child(_skills_panel)
+    _skills_content = VBoxContainer.new()
+    _skills_panel.add_child(_skills_content)
+    _refresh_skills_ui()
+
+func _toggle_skills(force_state: Variant = null) -> void:
+    if not is_instance_valid(_skills_panel):
+        return
+    var open := not _skills_panel.visible if force_state == null else bool(force_state)
+    _skills_panel.visible = open
+    if open:
+        _toggle_inventory(false)
+        _toggle_shop(false)
+        _toggle_stats(false)
+        _toggle_quest(false)
+        _toggle_breeding(false)
+        _toggle_property(false)
+        _refresh_skills_ui()
+
+func _refresh_skills_ui() -> void:
+    if not is_instance_valid(_skills_content):
+        return
+    for child in _skills_content.get_children():
+        _skills_content.remove_child(child)
+        child.free()
+    var header := HBoxContainer.new()
+    _skills_content.add_child(header)
+    var title := Label.new()
+    title.text = "SKILL & STAMINA"
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    header.add_child(title)
+    var close_button := Button.new()
+    close_button.text = "TUTUP"
+    close_button.pressed.connect(_toggle_skills.bind(false))
+    header.add_child(close_button)
+    var stamina_label := Label.new()
+    stamina_label.text = "Stamina: %.0f/%.0f | Regen %.1f/detik" % [
+        SkillManager.get_stamina(), SkillManager.get_max_stamina(), SkillManager.get_stamina_regen()
+    ]
+    _skills_content.add_child(stamina_label)
+    var hint := Label.new()
+    hint.text = "Skill naik level setiap 5 kali penggunaan berhasil (maks. Level 5)."
+    hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    _skills_content.add_child(hint)
+    for skill_id in ["power_strike", "recovery"]:
+        var data: Dictionary = SkillManager.get_skill_status(skill_id)
+        var row := VBoxContainer.new()
+        _skills_content.add_child(row)
+        var label := Label.new()
+        var state := "Terbuka" if bool(data.get("unlocked", false)) else "Terkunci — Job Level %d" % int(SkillManager.SKILLS[skill_id]["unlock_level"])
+        label.text = "%s | Level %d | %s" % [str(data.get("name", skill_id)), int(data.get("level", 1)), state]
+        row.add_child(label)
+        var description := Label.new()
+        description.text = "%s | Biaya %.0f stamina | Cooldown %.1f dtk" % [
+            str(data.get("description", "")), float(data.get("stamina_cost", 0.0)), float(data.get("cooldown", 0.0))
+        ]
+        description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        row.add_child(description)
+        var use_button := Button.new()
+        use_button.text = "GUNAKAN " + str(data.get("name", skill_id)).to_upper()
+        use_button.disabled = not bool(data.get("unlocked", false))
+        use_button.pressed.connect(_cast_skill.bind(skill_id))
+        row.add_child(use_button)
+
+func _cast_skill(skill_id: String) -> void:
+    var target: Node2D = null
+    if skill_id == "power_strike":
+        var nearest_distance := 48.0
+        for monster in get_tree().get_nodes_in_group("monsters"):
+            if not is_instance_valid(monster):
+                continue
+            var distance := player.global_position.distance_to(monster.global_position)
+            if distance < nearest_distance:
+                target = monster
+                nearest_distance = distance
+    if is_instance_valid(target) and target.has_signal("defeated"):
+        var callback := Callable(self, "_on_monster_defeated")
+        if not target.is_connected("defeated", callback):
+            target.connect("defeated", callback)
+    var result: Dictionary = SkillManager.cast_skill(skill_id, player, target)
+    _show_message(str(result.get("message", "Skill diproses.")))
+    if bool(result.get("ok", false)):
+        SaveManager.save_game()
+    _refresh_skills_ui()
+
+func _on_stamina_changed(_current: float, _maximum: float) -> void:
+    if is_instance_valid(_skills_panel) and _skills_panel.visible:
+        _refresh_skills_ui()
 
 func _create_mobile_controls() -> void:
     if not OS.has_feature("mobile") and not DisplayServer.is_touchscreen_available():
@@ -973,6 +1085,12 @@ func _create_mobile_controls() -> void:
     bag_button.size = Vector2(90, 54)
     $CanvasLayer.add_child(bag_button)
     bag_button.pressed.connect(_toggle_inventory)
+    var skill_button := Button.new()
+    skill_button.text = "SKILL"
+    skill_button.position = Vector2(620, 420)
+    skill_button.size = Vector2(100, 58)
+    $CanvasLayer.add_child(skill_button)
+    skill_button.pressed.connect(_toggle_skills)
     var shop_button := Button.new()
     shop_button.text = "TOKO"
     shop_button.position = Vector2(730, 350)

@@ -81,5 +81,35 @@
     "attack": 2,
     "defense": 1,
     "max_health": 5
+  },
+  "wolf_fang": {
+    "name": "Taring Serigala",
+    "buy_price": 0,
+    "sell_price": 20,
+    "stack_limit": 99
+  },
+  "bone": {
+    "name": "Tulang",
+    "buy_price": 0,
+    "sell_price": 25,
+    "stack_limit": 99
+  },
+  "goblin_ore": {
+    "name": "Bijih Goblin",
+    "buy_price": 0,
+    "sell_price": 40,
+    "stack_limit": 99
+  },
+  "beast_claw": {
+    "name": "Cakar Buas",
+    "buy_price": 0,
+    "sell_price": 75,
+    "stack_limit": 99
+  },
+  "ancient_core": {
+    "name": "Inti Kuno",
+    "buy_price": 0,
+    "sell_price": 150,
+    "stack_limit": 99
   }
 }

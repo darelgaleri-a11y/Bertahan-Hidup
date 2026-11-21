@@ -52,3 +52,14 @@ func restore_after_defeat(spawn_position: Vector2) -> void:
     velocity = Vector2.ZERO
     is_defeated = false
     health_changed.emit(health, get_effective_max_health())
+
+
+func heal(amount: int) -> int:
+    if amount <= 0 or is_defeated:
+        return 0
+    var previous_health := health
+    health = mini(get_effective_max_health(), health + amount)
+    var restored := health - previous_health
+    if restored > 0:
+        health_changed.emit(health, get_effective_max_health())
+    return restored

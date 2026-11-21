@@ -51,3 +51,14 @@ Bonus equipment ditambahkan ke atribut terkait. Tidak ada alokasi poin manual at
 
 ## Batas pengujian
 Godot tidak tersedia pada lingkungan pembuatan ZIP ini. Karena itu parser GDScript, runtime scene, gameplay sesungguhnya, dan perangkat Android belum dapat dinyatakan lulus. Pemeriksaan statis bukan pengganti pengujian langsung di Godot.
+
+
+## Audit Skill System
+- Memastikan SkillManager terdaftar sebagai Autoload.
+- Memastikan save/load memuat data stamina dan progres skill.
+- Validasi nilai stamina saat load dibatasi ke 0 sampai stamina maksimum.
+- Validasi level skill dibatasi 1–5 dan direkonsiliasi terhadap jumlah penggunaan.
+- Skill yang gagal karena target tidak ada, cooldown, atau stamina kurang tidak mengonsumsi stamina dan tidak menambah progres.
+- Power Strike hanya mengonsumsi stamina setelah target valid.
+- Recovery tidak mengonsumsi stamina jika HP sudah penuh.
+- Pengujian runtime Godot belum dapat dilakukan pada lingkungan ini; perlu verifikasi langsung melalui Godot Editor.

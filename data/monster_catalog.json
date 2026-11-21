@@ -10,5 +10,70 @@
     "material_drop_min": 1,
     "material_drop_max": 2,
     "experience_reward": 0
+  },
+  "monster_wolf": {
+    "name": "Serigala Liar",
+    "required_job_level": 1,
+    "hp": 90,
+    "attack": 8,
+    "defense": 2,
+    "move_speed": 42,
+    "seed_drop_chance": 0.15,
+    "loot_item": "wolf_fang",
+    "material_drop_min": 1,
+    "material_drop_max": 2,
+    "experience_reward": 0
+  },
+  "monster_skeleton": {
+    "name": "Tengkorak",
+    "required_job_level": 2,
+    "hp": 130,
+    "attack": 12,
+    "defense": 5,
+    "move_speed": 25,
+    "seed_drop_chance": 0.2,
+    "loot_item": "bone",
+    "material_drop_min": 1,
+    "material_drop_max": 3,
+    "experience_reward": 0
+  },
+  "monster_goblin": {
+    "name": "Goblin",
+    "required_job_level": 3,
+    "hp": 180,
+    "attack": 16,
+    "defense": 7,
+    "move_speed": 34,
+    "seed_drop_chance": 0.25,
+    "loot_item": "goblin_ore",
+    "material_drop_min": 1,
+    "material_drop_max": 2,
+    "experience_reward": 0
+  },
+  "monster_elite_beast": {
+    "name": "Monster Buas Elite",
+    "required_job_level": 4,
+    "hp": 420,
+    "attack": 24,
+    "defense": 12,
+    "move_speed": 38,
+    "seed_drop_chance": 0.35,
+    "loot_item": "beast_claw",
+    "material_drop_min": 2,
+    "material_drop_max": 4,
+    "experience_reward": 0
+  },
+  "monster_boss": {
+    "name": "Penjaga Hutan",
+    "required_job_level": 5,
+    "hp": 1200,
+    "attack": 35,
+    "defense": 18,
+    "move_speed": 22,
+    "seed_drop_chance": 0.5,
+    "loot_item": "ancient_core",
+    "material_drop_min": 2,
+    "material_drop_max": 5,
+    "experience_reward": 0
   }
 }

@@ -119,3 +119,12 @@
 - Bonus equipment tetap ditambahkan di atas status dasar.
 - Panel STATUS dapat dibuka dengan tombol P atau tombol STATUS di layar sentuh.
 - Status tidak disimpan terpisah karena dihitung dari Job Level yang sudah disimpan; hal ini mencegah data status berbeda dari level karakter.
+
+
+## Skill System — pembaruan terbaru
+- Menambahkan SkillManager sebagai Autoload.
+- Menambahkan Power Strike dan Recovery dengan biaya stamina, cooldown, persyaratan Job Level, dan level skill.
+- Stamina maksimum serta regenerasi dipengaruhi atribut Stamina dan Ability.
+- Menambahkan panel skill, tombol keyboard K/L/O, dan tombol SKILL untuk perangkat sentuh.
+- Menambahkan pemulihan HP pada Player.
+- Save version dinaikkan menjadi 5; data skill dan stamina disimpan serta divalidasi saat dimuat.
