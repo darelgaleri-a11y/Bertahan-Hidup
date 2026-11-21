@@ -286,6 +286,8 @@ func _schedule_monster_respawn(scene_path: String, spawn_position: Vector2, mons
         if str(pending.get("scene_path", "")) == scene_path:
             return
     if _has_live_monster_scene(scene_path):
+        # Instance yang sudah hidup membuat antrean lama tidak relevan.
+        _remove_pending_monster_respawn(scene_path)
         return
 
     if monster_region == RegionManager.current_region_id:
@@ -299,12 +301,21 @@ func _schedule_monster_respawn(scene_path: String, spawn_position: Vector2, mons
             "monster_name": monster_name
         })
 
+func _remove_pending_monster_respawn(scene_path: String) -> void:
+    for i in range(_pending_monster_respawns.size() - 1, -1, -1):
+        if str(_pending_monster_respawns[i].get("scene_path", "")) == scene_path:
+            _pending_monster_respawns.remove_at(i)
+
 func _has_live_monster_scene(scene_path: String) -> bool:
+    if scene_path.is_empty():
+        return false
     for monster in get_tree().get_nodes_in_group("monster_entities"):
         if not is_instance_valid(monster):
             continue
-        var monster_scene_path := str(monster.get("scene_file_path"))
-        if monster_scene_path == scene_path and not bool(monster.get("_dead")):
+        if not monster.is_inside_tree() or bool(monster.get("_dead")):
+            continue
+        var monster_scene_path := str(monster.scene_file_path)
+        if monster_scene_path == scene_path:
             return true
     return false
 
@@ -322,8 +333,14 @@ func _process_pending_monster_respawns() -> void:
         var monster_scene := pending.get("scene") as PackedScene
         var spawn_position: Vector2 = pending.get("position", Vector2(380, 270))
         var scene_path := str(pending.get("scene_path", ""))
-        if monster_scene != null and not _has_live_monster_scene(scene_path):
-            _spawn_respawned_monster(monster_scene, spawn_position)
+        if _has_live_monster_scene(scene_path):
+            _pending_monster_respawns.remove_at(i)
+            continue
+        if monster_scene == null or scene_path.is_empty():
+            push_warning("Respawn monster dilewati karena data scene tidak valid.")
+            _pending_monster_respawns.remove_at(i)
+            continue
+        _spawn_respawned_monster(monster_scene, spawn_position)
         _pending_monster_respawns.remove_at(i)
 
 func _get_region_for_monster_scene(scene_path: String) -> String:

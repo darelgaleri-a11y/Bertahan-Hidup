@@ -78,6 +78,12 @@ func _read_save_file(path: String) -> Dictionary:
         return {}
     if typeof(parsed.get("inventory")) != TYPE_DICTIONARY or typeof(parsed.get("pond")) != TYPE_DICTIONARY:
         return {}
+    # Versi save masa depan tidak boleh dibaca oleh kode yang belum mendukungnya.
+    var save_version = parsed.get("version", 1)
+    if typeof(save_version) != TYPE_INT and typeof(save_version) != TYPE_FLOAT:
+        return {}
+    if int(save_version) < 1 or int(save_version) > SAVE_VERSION:
+        return {}
     return parsed
 
 func load_game() -> bool:
