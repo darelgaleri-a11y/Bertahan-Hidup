@@ -97,3 +97,15 @@
 - Akses PC melalui tombol Q; layar sentuh melalui tombol MISI.
 
 - Slime kini muncul kembali 5 detik setelah dikalahkan sehingga misi berburu tidak terhenti setelah monster pertama mati.
+
+
+## Audit Bug Quest dan Equipment System
+- Memperbaiki event Panen Pertama yang sebelumnya tidak terhubung ke QuestManager.
+- Memperbaiki event Pengumpul Gel yang sebelumnya tidak terhubung dari InventoryManager.
+- Memperbaiki event Pemburu Slime yang sebelumnya tidak tercatat saat Slime mati.
+- Menambahkan penyimpanan dan pemuatan progres quest serta status klaim hadiah pada SaveManager.
+- Menambahkan EquipmentManager dan empat slot perlengkapan: Weapon, Armor, Boots, Accessory.
+- Menambahkan empat perlengkapan awal dengan bonus serangan, pertahanan, HP maksimum, dan kecepatan.
+- Menambahkan aksi Pakai/Lepas pada inventory dan pengembalian perlengkapan lama saat mengganti item.
+- Menambahkan penyimpanan perlengkapan pada save game dan menaikkan SAVE_VERSION ke 4.
+- Toko menggunakan ScrollContainer agar seluruh daftar item dapat diakses pada ukuran layar terbatas.

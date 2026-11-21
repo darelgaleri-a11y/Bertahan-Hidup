@@ -3,7 +3,7 @@ extends Node
 const SAVE_PATH := "user://savegame.json"
 const TEMP_PATH := "user://savegame.json.tmp"
 const BACKUP_PATH := "user://savegame_backup.json"
-const SAVE_VERSION := 3
+const SAVE_VERSION := 4
 
 func save_game() -> bool:
     FarmManager.update_offline()
@@ -16,6 +16,8 @@ func save_game() -> bool:
         "inventory": InventoryManager.items,
         "pending_loot": LootManager.get_save_data(),
         "property": PropertyManager.get_save_data(),
+        "quests": QuestManager.get_save_data(),
+        "equipment": EquipmentManager.get_save_data(),
         "pond": FarmManager.get_save_data()
     }
 
@@ -103,10 +105,18 @@ func load_game() -> bool:
 
     var saved_pond: Dictionary = parsed.get("pond", {})
     FarmManager.load_save_data(saved_pond)
-    var saved_loot: Dictionary = parsed.get("pending_loot", {})
+    var saved_loot_value = parsed.get("pending_loot", {})
+    var saved_loot: Dictionary = saved_loot_value if typeof(saved_loot_value) == TYPE_DICTIONARY else {}
     LootManager.load_save_data(saved_loot)
-    var saved_property: Dictionary = parsed.get("property", {})
+    var saved_property_value = parsed.get("property", {})
+    var saved_property: Dictionary = saved_property_value if typeof(saved_property_value) == TYPE_DICTIONARY else {}
     PropertyManager.load_save_data(saved_property)
+    var saved_quests_value = parsed.get("quests", {})
+    var saved_quests: Dictionary = saved_quests_value if typeof(saved_quests_value) == TYPE_DICTIONARY else {}
+    QuestManager.load_save_data(saved_quests)
+    var saved_equipment_value = parsed.get("equipment", {})
+    var saved_equipment: Dictionary = saved_equipment_value if typeof(saved_equipment_value) == TYPE_DICTIONARY else {}
+    EquipmentManager.load_save_data(saved_equipment)
 
     GameManager.money_changed.emit(GameManager.money)
     GameManager.farm_value_changed.emit(GameManager.farm_value)

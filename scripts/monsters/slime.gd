@@ -77,6 +77,7 @@ func _die() -> void:
             summary_parts.append("Bibit Basic x1 (Peti Loot)")
 
     var summary := " + ".join(summary_parts)
+    QuestManager.record_event("monster_kill", "slime", 1)
 
     # Sesuai ketetapan progresi game: monster tidak memberi EXP.
     defeated.emit(summary)

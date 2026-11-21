@@ -1,159 +1,109 @@
-# Bertahan Hidup — Quest & Bugfix Update
+# Bertahan Hidup — Equipment System & Bugfix Update
 
-Proyek game Godot 4.x, 2D top-down, gaya Detailed Pixel Art dengan tile dasar 16×16.
+Proyek game 2D top-down untuk Godot 4.x, target Android landscape, dengan gaya Detailed Pixel Art dan ukuran dasar tile 16×16 pixel.
 
-## Fitur dalam paket
-- Player movement, kontrol keyboard dan tombol sentuh dasar.
-- HUD HP, Money, Job Level, Farm Value, dan status kolam.
-- Sistem kolam: bibit, pakan, pertumbuhan, panen, dan perhitungan offline.
+## Fitur yang tersedia dalam paket
+
+### Pemain dan dunia
+- Gerakan pemain dengan keyboard dan kontrol sentuh.
+- HP pemain, serangan, respawn, dan HUD.
+- Slime mengejar dan menyerang pemain; Slime muncul kembali 5 detik setelah dikalahkan.
+- NPC Pedagang, Ahli Breeding, Pengelola Lahan, dan Papan Misi.
+
+### Farming dan ekonomi
+- Kolam ikan: masukkan bibit, beri pakan, pertumbuhan offline, dan panen.
+- Farm Value dan Job Level berdasarkan hasil panen.
+- Inventory 30 slot, stack, penjualan item, dan Peti Loot untuk loot yang tidak tertampung.
+- Toko menjual bibit, pakan, serta empat perlengkapan awal.
+- Sistem breeding Basic → Advanced → Rare → Epic → Legendary.
+- Sewa/beli lahan, persyaratan Job Level, relokasi NPC/gerobak.
 - Save/load JSON dengan backup.
-- Slime AI, combat, material loot, dan peluang drop bibit.
-- Inventory: 30 slot, stack 99, daftar item, dan penjualan satuan.
-- Shop: pembelian Bibit Basic dan Pakan Basic.
-- Proteksi transaksi: uang hanya dipotong setelah validasi kapasitas dan item.
-- Proteksi panen: hasil ikan masuk inventory terlebih dahulu; kolam tidak dikosongkan jika inventory tidak mampu menampung.
 
-## Menjalankan
-1. Ekstrak ZIP.
-2. Buka Godot 4.3 atau Godot 4.x yang kompatibel.
-3. Project Manager → Import.
-4. Pilih `project.godot` di folder `Bertahan_Hidup_Godot`.
-5. Tunggu import, lalu tekan F5.
+### Equipment System
+Empat slot perlengkapan:
+- Weapon — Pedang Kayu: +10 ATK.
+- Armor — Baju Kain: +2 DEF, +10 HP maksimum.
+- Boots — Sepatu Kulit: +12 kecepatan gerak.
+- Accessory — Cincin Tembaga: +2 ATK, +1 DEF, +5 HP maksimum.
+
+Cara memakai perlengkapan:
+1. Dekati Pedagang dan tekan E dua kali untuk membuka toko.
+2. Beli perlengkapan yang diinginkan.
+3. Tekan I atau tombol TAS untuk membuka inventory.
+4. Tekan **Pakai** di samping item perlengkapan.
+5. Ringkasan slot dan bonus statistik terlihat pada panel inventory.
+6. Tekan **Lepas** untuk mengembalikan item ke inventory.
+7. Jika inventory penuh, pelepasan atau pergantian perlengkapan ditolak agar item tidak hilang.
+
+Bonus equipment memengaruhi damage serangan, pengurangan damage masuk, HP maksimum, dan kecepatan gerak. Perlengkapan tersimpan di save game.
+
+### Quest & Mission
+- Panen Pertama: panen 1 kali, hadiah 100 Money.
+- Pemburu Slime: kalahkan 3 Slime, hadiah 150 Money.
+- Pengumpul Gel: kumpulkan 5 Slime Gel ke inventory, hadiah 125 Money.
+- Progres misi otomatis tercatat dari event gameplay.
+- Hadiah hanya bisa diklaim satu kali dan statusnya tersimpan.
 
 ## Kontrol
-- WASD / panah: bergerak.
-- E: interaksi kolam (dekat kolam).
-- J / Space: serang Slime.
-- I: buka/tutup inventory.
-- B: buka/tutup toko.
-- Escape: tutup panel yang sedang terbuka.
-- Android: tombol TAS dan TOKO serta kontrol sentuh gerakan/interaksi/serang.
 
-## Hasil yang diharapkan
-- Tekan B, toko tampil dengan Bibit Basic (75 Money) dan Pakan Basic (10 Money).
-- Membeli item mengurangi Money dan menambah jumlah item.
-- Pembelian gagal tanpa mengurangi Money jika uang kurang atau inventory penuh.
-- Tekan I untuk melihat item; tombol Jual menjual satu item dan menambah Money.
-- Panen menambahkan Ikan Basic ke inventory; jika gagal ditampung, ikan tetap di kolam.
-- Save otomatis tetap menyimpan uang, inventory, dan kondisi kolam.
+| Tombol | Fungsi |
+|---|---|
+| WASD / Panah | Bergerak |
+| E | Interaksi dengan NPC/kolam |
+| J / Space | Menyerang |
+| I | Inventory dan perlengkapan |
+| B | Toko |
+| Q | Papan Misi |
+| Escape | Menutup panel |
 
-## Checklist perkembangan
-- [x] Struktur proyek dan asset dasar pixel art.
-- [x] Gerakan pemain dan kontrol sentuh dasar.
-- [x] HUD dan status HP.
-- [x] Kolam, pakan, pertumbuhan, panen, Farm Value.
-- [x] Save/load dan backup.
-- [x] Slime AI, combat, loot material dan peluang bibit.
-- [x] Inventory UI, kapasitas slot, stack, jumlah item.
-- [x] Penjualan item dari inventory.
-- [x] Shop pembelian Bibit Basic dan Pakan Basic.
-- [ ] Pengujian runtime Godot dan Android.
-- [ ] NPC toko fisik, breeding, quest, equipment, skills.
-- [ ] Dunia desa/hutan/gua lengkap, audio, tutorial, UI final.
-- [ ] Build APK dan uji performa perangkat.
+Di layar sentuh tersedia tombol gerak, INTERAKSI, SERANG, TAS, TOKO, dan MISI.
 
-## Batas verifikasi
-Paket diperiksa secara statis (JSON, referensi scene, integritas ZIP). Godot tidak tersedia di lingkungan pembuatan paket ini, sehingga belum ada klaim bahwa parser/runtime Godot atau perangkat Android sudah lulus pengujian. Nilai harga toko merupakan nilai uji awal.
+## Cara menjalankan
 
+1. Ekstrak ZIP.
+2. Buka Godot 4.3 atau Godot 4.x yang kompatibel.
+3. Pada Project Manager, pilih **Import**.
+4. Pilih file `project.godot` di dalam folder `Bertahan_Hidup_Godot`.
+5. Tunggu proses import selesai.
+6. Tekan **F5** untuk menjalankan.
 
-## Pembaruan NPC System
-- Penduduk Pedagang dan Ahli Breeding sekarang muncul di area desa.
-- Dekati NPC lalu tekan **E** untuk membaca dialog.
-- Tekan **E** sekali lagi saat masih dekat Pedagang untuk membuka toko.
-- Ahli Breeding memberikan informasi bahwa sistem breeding belum aktif.
-- Interaksi NPC diprioritaskan daripada kolam agar tombol E tidak salah menjalankan aksi.
-- Sprite NPC pixel-art 32×32 disimpan di `assets/sprites/npcs/`.
+## Hasil yang diharapkan saat diuji
 
-Catatan: fitur breeding sebenarnya, transaksi melalui dialog pilihan, dan sistem jadwal/pergerakan NPC belum dibuat pada tahap ini.
+- Pemain muncul di desa dengan 250 Money dan inventory awal.
+- NPC dapat membuka toko, breeding, properti, dan papan misi.
+- Membeli perlengkapan mengurangi Money dan menambahkan item ke inventory.
+- Memakai Pedang Kayu meningkatkan damage serangan dari 25 menjadi 35.
+- Memakai Baju Kain mengurangi damage Slime sebesar 2 (damage minimum tetap 1) dan menaikkan HP maksimum 10.
+- Memakai Sepatu Kulit meningkatkan kecepatan gerak dari 110 menjadi 122.
+- Memakai Cincin Tembaga menambah ATK 2, DEF 1, dan HP maksimum 5.
+- Pergantian perlengkapan mengembalikan item lama ke inventory.
+- Progres quest bertambah ketika panen, mengalahkan Slime, dan memasukkan Slime Gel ke inventory.
+- Equipment dan progres quest tetap tersimpan setelah game dibuka ulang.
 
+## Checklist perkembangan game
 
-## Breeding System Update
-- Ahli Breeding kini membuka panel breeding saat tombol E ditekan dua kali ketika pemain berada di dekatnya.
-- Resep: 2 Basic → Advanced (100 Money, 90%); 2 Advanced → Rare (250 Money, 75%); 2 Rare → Epic (500 Money, 60%); 2 Epic → Legendary (1.000 Money, 40%).
-- Jika gagal: satu bibit dikembalikan, satu bibit hilang, dan 50% biaya dikembalikan.
-- Pemeriksaan inventory dan saldo dilakukan sebelum transaksi.
-- Katalog sudah memuat bibit Advanced, Rare, Epic, dan Legendary.
-- Proses breeding dipisahkan ke `BreedingManager` agar mudah diuji dan dikembangkan.
-
-
-## Checklist perkembangan terbaru
-- [x] Struktur proyek Godot 4.x dan aset dasar Detailed Pixel Art.
-- [x] Player movement, input keyboard, dan kontrol sentuh dasar.
-- [x] HUD, HP, respawn, dan combat dasar.
-- [x] Kolam ikan, bibit, pakan, pertumbuhan offline, dan panen.
-- [x] Farm Value dan Job Level dasar.
-- [x] Save/load JSON, backup, dan validasi inventory.
-- [x] Slime AI, serangan, loot material, dan peluang drop bibit.
-- [x] Inventory 30 slot, stack, penjualan item, dan toko.
-- [x] NPC Pedagang dan Ahli Breeding, dialog, serta interaksi jarak dekat.
-- [x] Breeding Basic→Advanced→Rare→Epic→Legendary dengan biaya dan peluang.
-- [ ] Pengujian runtime menyeluruh di Godot 4.x.
-- [ ] Pengujian perangkat Android dan kontrol layar sentuh.
-- [ ] NPC desa tambahan, jadwal/pergerakan NPC, dan sistem relokasi barang NPC.
-- [ ] Sewa/pembelian lahan dan sistem perpindahan tempat tinggal.
-- [ ] Quest, equipment, statistik karakter, dan skill.
-- [ ] Monster tambahan, hutan, gua, dan Danger Zone.
-- [ ] Audio final, tutorial, polish UI, optimasi, dan build APK.
-
-## Catatan pengujian
-File JSON, referensi resource `res://`, dan integritas ZIP diperiksa secara otomatis. Godot executable tidak tersedia di lingkungan pembuatan paket ini, sehingga parsing scene/script dan pengujian runtime belum dapat dikonfirmasi. Peluang breeding memakai RNG saat permainan berjalan; hasil tiap percobaan dapat berbeda.
-
-
-## Perbaikan audit kode — Peti Loot
-- Loot monster yang tidak muat di inventory otomatis masuk Peti Loot.
-- Peti Loot tersimpan di save game dan dapat diambil melalui tombol **AMBIL LOOT** pada panel Inventory.
-- Pengambilan loot bersifat parsial; sisa item tetap tersimpan jika inventory masih penuh.
-- Pakan tidak dapat digunakan pada kolam kosong atau kolam yang sudah siap panen.
-
-
-## Sistem Lahan & Properti (prototipe)
-- NPC Pengelola Lahan mengelola sewa, pembelian, dan perpindahan lahan.
-- Lahan Desa tersedia sejak awal sebagai sewa pengenalan selama 7 hari.
-- Lahan Hutan memerlukan Job Level 1; Lahan Tepi Danau memerlukan Job Level 3.
-- Menyewa lahan memberi akses 7 hari; membeli lahan memberi kepemilikan permanen.
-- Saat pindah, NPC berjalan membawa gerobak barang menuju lokasi baru. Data kolam tetap dipertahankan.
-- Status lahan, kepemilikan, masa sewa, dan lokasi aktif disimpan dalam save game.
-- Harga prototipe masih sementara: Desa 150/5.000, Hutan 250/12.000, Tepi Danau 600/25.000 (sewa/beli).
-
-
-## Quest & Mission System Update
-- Menambahkan Papan Misi di area desa. Dekati lalu tekan **E** dua kali untuk membuka misi.
-- Tombol **Q** juga membuka/menutup daftar misi di PC; tombol **MISI** tersedia pada layar sentuh.
-- Misi awal: Panen Pertama (1 kali panen), Pemburu Slime (3 Slime), dan Pengumpul Gel (5 Slime Gel). Slime muncul kembali 5 detik setelah dikalahkan agar misi berburu bisa diselesaikan.
-- Hadiah: 100, 150, dan 125 Money. Hadiah hanya bisa diklaim satu kali.
-- Progres misi dan status hadiah disimpan dalam save game.
-- Misi diperbarui otomatis ketika panen, Slime dikalahkan, atau Slime Gel masuk ke inventory.
-
-## Audit bug dan perbaikan tambahan
-- Memperbaiki titik respawn: setelah pemain pindah lahan, kekalahan/respawn kini mengembalikan pemain ke titik spawn lahan aktif, bukan koordinat awal desa.
-- Memperkuat pemuatan data properti agar record lahan yang rusak/tidak sesuai format tidak langsung dipakai sebagai data status.
-- Mempertahankan perbaikan sebelumnya untuk Peti Loot, transaksi breeding, inventory, dan validasi pakan.
-
-## Cara menguji fitur terbaru
-1. Jalankan game, dekati Papan Misi di area desa, lalu tekan **E** dua kali (atau tekan **Q**).
-2. Selesaikan misi panen dengan memasukkan bibit, memberi pakan, menunggu pertumbuhan, lalu panen.
-3. Kalahkan Slime sebanyak 3 kali untuk misi Pemburu Slime.
-4. Kumpulkan Slime Gel hingga 5 unit untuk misi Pengumpul Gel. Jika inventory penuh, ambil dulu item dari Peti Loot.
-5. Buka Papan Misi dan tekan **AMBIL HADIAH** pada misi yang selesai.
-6. Tutup dan jalankan ulang game untuk memastikan progres dan status hadiah tetap tersimpan.
-
-## Checklist perkembangan saat ini
-- [x] Struktur proyek Godot 4.x dan aset dasar Detailed Pixel Art 16×16.
-- [x] Gerakan pemain, input keyboard, kontrol sentuh dasar, HUD, HP, dan respawn.
+- [x] Struktur proyek Godot 4.x dan asset dasar Detailed Pixel Art 16×16.
+- [x] Gerakan pemain, kontrol sentuh dasar, HUD, HP, dan respawn.
 - [x] Kolam ikan, bibit, pakan, pertumbuhan offline, panen, Farm Value, dan Job Level.
 - [x] Save/load JSON dan backup.
-- [x] Slime AI, combat, loot material, peluang drop bibit, dan Peti Loot overflow.
-- [x] Inventory 30 slot, stack, penjualan item, dan toko.
+- [x] Slime AI, combat, loot material, peluang drop bibit, dan respawn Slime.
+- [x] Inventory 30 slot, stack, penjualan item, dan Peti Loot overflow.
+- [x] Toko dan pembelian item.
 - [x] NPC Pedagang, Ahli Breeding, Pengelola Lahan, dan Papan Misi.
-- [x] Breeding Basic→Advanced→Rare→Epic→Legendary.
-- [x] Sewa/beli lahan, syarat Job Level, relokasi NPC/gerobak, dan penyimpanan properti.
+- [x] Breeding lima tier.
+- [x] Sewa/beli lahan, syarat Job Level, dan relokasi NPC/gerobak.
 - [x] Quest awal, progres otomatis, klaim hadiah satu kali, dan penyimpanan progres.
-- [ ] Pengujian parser/runtime Godot 4.x menyeluruh.
-- [ ] Pengujian perangkat Android, layout layar, dan kontrol sentuh.
-- [ ] Sistem equipment, statistik karakter, dan skill.
-- [ ] Penyimpanan kolam terpisah untuk setiap lahan serta penempatan bangunan.
-- [ ] Monster tambahan, hutan/gua/Danger Zone, dan quest lanjutan.
-- [ ] Audio final, tutorial, polish UI, optimasi, dan build APK.
+- [x] Equipment empat slot, equip/unequip, bonus statistik, dan penyimpanan equipment.
+- [ ] Sistem statistik karakter yang lebih lengkap (Strength, Vitality, Defense, Agility, Ability, Stamina) dan level-up.
+- [ ] Sistem skill dan peningkatan skill.
+- [ ] Penyimpanan kolam terpisah untuk setiap lahan dan penempatan bangunan.
+- [ ] Monster tambahan, hutan, gua, Danger Zone, dan quest lanjutan.
+- [ ] Audio final, tutorial, polish UI, dan optimasi.
+- [ ] Pengujian parser/runtime Godot secara menyeluruh.
+- [ ] Pengujian perangkat Android dan build APK.
 
-## Batas verifikasi
-Pemeriksaan statis dilakukan pada JSON, referensi resource, jumlah resource scene, skenario aturan quest/properti, dan integritas ZIP. Godot executable tidak tersedia pada lingkungan pembuatan paket ini; karena itu parser GDScript, runtime game, dan perangkat Android belum dapat dinyatakan lulus. Harga lahan, toko, dan hadiah misi masih nilai prototipe untuk pengujian keseimbangan.
+## Audit dan batas verifikasi
+
+Pada paket ini diperbaiki event quest panen, event pengumpulan Slime Gel, event pembunuhan Slime, dan penyimpanan progres quest yang sebelumnya belum terhubung dengan benar. Pemeriksaan statis juga dilakukan pada katalog JSON, referensi `res://`, resource scene, fungsi duplikat, serta simulasi transaksi equipment dan progres quest.
+
+Godot executable tidak tersedia pada lingkungan pembuatan paket ini. Karena itu parser GDScript, runtime gameplay, dan perangkat Android belum dapat dinyatakan lulus. Harga item dan keseimbangan bonus equipment masih nilai prototipe yang dapat disesuaikan setelah playtest.

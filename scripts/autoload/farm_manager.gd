@@ -81,6 +81,7 @@ func harvest() -> bool:
     # Sisa pakan dipertahankan untuk siklus ikan berikutnya.
 
     GameManager.add_farm_value(10 * amount)
+    QuestManager.record_event("harvest", "", 1)
     last_update_unix = int(Time.get_unix_time_from_system())
     pond_changed.emit()
     return true

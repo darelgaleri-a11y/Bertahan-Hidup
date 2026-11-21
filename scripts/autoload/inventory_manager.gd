@@ -76,6 +76,8 @@ func add_item(item_id: String, amount: int = 1) -> bool:
         return false
     items[item_id] = current + amount
     inventory_changed.emit()
+    if is_instance_valid(QuestManager):
+        QuestManager.record_event("collect_item", item_id, amount)
     return true
 
 func remove_item(item_id: String, amount: int = 1) -> bool:

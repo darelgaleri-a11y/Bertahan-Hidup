@@ -37,7 +37,11 @@ const PLAYER_START_POSITION := Vector2(380, 270)
 const SLIME_RESPAWN_POSITION := Vector2(700, 270)
 const SHOP_ITEMS := {
     "seed_basic": {"price": 75, "label": "Bibit Basic"},
-    "feed_basic": {"price": 10, "label": "Pakan Basic"}
+    "feed_basic": {"price": 10, "label": "Pakan Basic"},
+    "weapon_wooden_sword": {"price": 200, "label": "Pedang Kayu"},
+    "armor_cloth": {"price": 180, "label": "Baju Kain"},
+    "boots_leather": {"price": 160, "label": "Sepatu Kulit"},
+    "ring_copper": {"price": 220, "label": "Cincin Tembaga"}
 }
 
 func _ready() -> void:
@@ -45,6 +49,7 @@ func _ready() -> void:
     player.connect("health_changed", Callable(self, "_on_player_health_changed"))
     player.connect("player_defeated", Callable(self, "_on_player_defeated"))
     SaveManager.load_game()
+    player.set("health", int(player.call("get_effective_max_health")))
     FarmManager.initialize_if_needed()
     PropertyManager.initialize_if_needed()
     PropertyManager.relocation_started.connect(_on_relocation_started)
@@ -54,6 +59,7 @@ func _ready() -> void:
     GameManager.farm_value_changed.connect(_refresh_money)
     FarmManager.pond_changed.connect(_refresh)
     InventoryManager.inventory_changed.connect(_refresh_inventory)
+    EquipmentManager.equipment_changed.connect(_on_equipment_changed)
     LootManager.loot_changed.connect(_refresh_loot_button)
     _create_inventory_ui()
     _create_shop_ui()
@@ -62,8 +68,8 @@ func _ready() -> void:
     _refresh()
     _refresh_money()
     _refresh_inventory()
-    _on_player_health_changed(int(player.get("health")), int(player.get("max_health")))
-    _show_message("E: kolam | I: inventory | B: toko | J/Space: serang.")
+    _on_player_health_changed(int(player.get("health")), int(player.call("get_effective_max_health")))
+    _show_message("E: interaksi | I: inventory/perlengkapan | B: toko | J/Space: serang.")
     _create_property_ui()
     _create_quest_ui()
     QuestManager.quests_changed.connect(_refresh_quest_ui)
@@ -196,8 +202,9 @@ func _attack() -> void:
             var callback := Callable(self, "_on_monster_defeated")
             if not nearest.is_connected("defeated", callback):
                 nearest.connect("defeated", callback)
-        nearest.take_damage(25)
-        _show_message("Serangan mengenai Slime: 25 damage.")
+        var damage := int(player.call("get_attack_damage"))
+        nearest.take_damage(damage)
+        _show_message("Serangan mengenai Slime: %d damage." % damage)
     else:
         _show_message("Tidak ada monster dalam jangkauan serangan.")
 
@@ -253,9 +260,9 @@ func _show_message(message: String) -> void:
 func _create_inventory_ui() -> void:
     _inventory_panel = PanelContainer.new()
     _inventory_panel.name = "InventoryPanel"
-    _inventory_panel.position = Vector2(300, 100)
-    _inventory_panel.size = Vector2(360, 340)
-    _inventory_panel.custom_minimum_size = Vector2(360, 340)
+    _inventory_panel.position = Vector2(265, 35)
+    _inventory_panel.size = Vector2(430, 470)
+    _inventory_panel.custom_minimum_size = Vector2(430, 470)
     _inventory_panel.visible = false
     $CanvasLayer.add_child(_inventory_panel)
     var outer := VBoxContainer.new()
@@ -278,6 +285,13 @@ func _create_inventory_ui() -> void:
     _loot_button.custom_minimum_size = Vector2(0, 42)
     _loot_button.pressed.connect(_claim_loot)
     outer.add_child(_loot_button)
+    var equipment_label := Label.new()
+    equipment_label.name = "EquipmentSummary"
+    equipment_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    outer.add_child(equipment_label)
+    var equipment_controls := VBoxContainer.new()
+    equipment_controls.name = "EquipmentControls"
+    outer.add_child(equipment_controls)
     var scroll := ScrollContainer.new()
     scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
     outer.add_child(scroll)
@@ -305,6 +319,29 @@ func _refresh_inventory() -> void:
         _inventory_list.remove_child(child)
         child.free()
     _inventory_capacity.text = "Slot: %d/%d" % [InventoryManager.get_used_slots(), InventoryManager.SLOT_LIMIT]
+    var equipment_label := _inventory_panel.find_child("EquipmentSummary", true, false) as Label
+    if is_instance_valid(equipment_label):
+        equipment_label.text = EquipmentManager.get_equipment_summary()
+    var equipment_controls := _inventory_panel.find_child("EquipmentControls", true, false) as VBoxContainer
+    if is_instance_valid(equipment_controls):
+        for child in equipment_controls.get_children():
+            equipment_controls.remove_child(child)
+            child.free()
+        for slot in EquipmentManager.EQUIPMENT_SLOTS:
+            var equipped_id := str(EquipmentManager.equipped.get(slot, ""))
+            if equipped_id == "":
+                continue
+            var slot_row := HBoxContainer.new()
+            equipment_controls.add_child(slot_row)
+            var slot_label := Label.new()
+            slot_label.text = "%s: %s" % [slot.capitalize(), InventoryManager.get_item_name(equipped_id)]
+            slot_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+            slot_row.add_child(slot_label)
+            var remove_button := Button.new()
+            remove_button.text = "Lepas"
+            remove_button.custom_minimum_size = Vector2(70, 38)
+            remove_button.pressed.connect(_unequip_item.bind(slot))
+            slot_row.add_child(remove_button)
     _refresh_loot_button()
     if InventoryManager.items.is_empty():
         var empty_label := Label.new()
@@ -321,6 +358,13 @@ func _refresh_inventory() -> void:
         item_label.text = "%s x%d" % [InventoryManager.get_item_name(item_id), InventoryManager.get_amount(item_id)]
         item_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         row.add_child(item_label)
+        var equipment_data := EquipmentManager.get_item_equipment_data(item_id)
+        if not equipment_data.is_empty():
+            var equip_button := Button.new()
+            equip_button.text = "Pakai"
+            equip_button.custom_minimum_size = Vector2(70, 42)
+            equip_button.pressed.connect(_equip_item.bind(item_id))
+            row.add_child(equip_button)
         var price := InventoryManager.get_sell_price(item_id)
         if price > 0:
             var sell_button := Button.new()
@@ -328,6 +372,28 @@ func _refresh_inventory() -> void:
             sell_button.custom_minimum_size = Vector2(90, 42)
             sell_button.pressed.connect(_sell_item.bind(item_id))
             row.add_child(sell_button)
+
+func _unequip_item(slot: String) -> void:
+    var result: Dictionary = EquipmentManager.unequip_slot(slot)
+    _show_message(str(result.get("message", "Perlengkapan diproses.")))
+    _refresh_inventory()
+    SaveManager.save_game()
+
+func _equip_item(item_id: String) -> void:
+    var result: Dictionary = EquipmentManager.equip_item(item_id)
+    _show_message(str(result.get("message", "Perlengkapan diproses.")))
+    _refresh_inventory()
+    _refresh_money()
+    SaveManager.save_game()
+
+func _on_equipment_changed() -> void:
+    if is_instance_valid(player):
+        var current_hp := int(player.get("health"))
+        var new_max_hp := int(player.call("get_effective_max_health"))
+        player.set("health", mini(current_hp, new_max_hp))
+        _on_player_health_changed(int(player.get("health")), new_max_hp)
+    _refresh_inventory()
+    SaveManager.save_game()
 
 func _sell_item(item_id: String) -> void:
     var price := InventoryManager.get_sell_price(item_id)
@@ -358,8 +424,8 @@ func _create_shop_ui() -> void:
     _shop_panel = PanelContainer.new()
     _shop_panel.name = "ShopPanel"
     _shop_panel.position = Vector2(300, 115)
-    _shop_panel.size = Vector2(360, 300)
-    _shop_panel.custom_minimum_size = Vector2(360, 300)
+    _shop_panel.size = Vector2(390, 390)
+    _shop_panel.custom_minimum_size = Vector2(390, 390)
     _shop_panel.visible = false
     $CanvasLayer.add_child(_shop_panel)
     var outer := VBoxContainer.new()
@@ -379,13 +445,19 @@ func _create_shop_ui() -> void:
     var hint := Label.new()
     hint.text = "Pilih item untuk membeli 1 unit."
     outer.add_child(hint)
+    var scroll := ScrollContainer.new()
+    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    outer.add_child(scroll)
+    var item_list := VBoxContainer.new()
+    item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(item_list)
     for item_id in SHOP_ITEMS.keys():
         var item_data: Dictionary = SHOP_ITEMS[item_id]
         var buy_button := Button.new()
         buy_button.text = "%s — %d Money" % [item_data["label"], item_data["price"]]
         buy_button.custom_minimum_size = Vector2(0, 48)
         buy_button.pressed.connect(_buy_item.bind(str(item_id)))
-        outer.add_child(buy_button)
+        item_list.add_child(buy_button)
 
 func _toggle_shop(force_state: Variant = null) -> void:
     _shop_open = not _shop_open if force_state == null else bool(force_state)

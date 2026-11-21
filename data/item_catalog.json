@@ -46,5 +46,40 @@
     "buy_price": 0,
     "sell_price": 500,
     "stack_limit": 99
+  },
+  "weapon_wooden_sword": {
+    "name": "Pedang Kayu",
+    "buy_price": 200,
+    "sell_price": 80,
+    "stack_limit": 1,
+    "equipment_slot": "weapon",
+    "attack": 10
+  },
+  "armor_cloth": {
+    "name": "Baju Kain",
+    "buy_price": 180,
+    "sell_price": 70,
+    "stack_limit": 1,
+    "equipment_slot": "armor",
+    "defense": 2,
+    "max_health": 10
+  },
+  "boots_leather": {
+    "name": "Sepatu Kulit",
+    "buy_price": 160,
+    "sell_price": 60,
+    "stack_limit": 1,
+    "equipment_slot": "boots",
+    "move_speed": 12
+  },
+  "ring_copper": {
+    "name": "Cincin Tembaga",
+    "buy_price": 220,
+    "sell_price": 90,
+    "stack_limit": 1,
+    "equipment_slot": "accessory",
+    "attack": 2,
+    "defense": 1,
+    "max_health": 5
   }
 }
