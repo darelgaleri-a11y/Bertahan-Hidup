@@ -33,6 +33,12 @@ func add_fish() -> bool:
 
 func add_feed() -> bool:
     update_offline()
+    if fish_count <= 0:
+        GameManager.notification_requested.emit("Masukkan bibit ikan ke kolam sebelum memberi pakan.")
+        return false
+    if fish_ready:
+        GameManager.notification_requested.emit("Ikan sudah siap panen. Panen terlebih dahulu.")
+        return false
     if not InventoryManager.remove_item("feed_basic", 1):
         return false
     feed_seconds_remaining += 10.0 * FEED_SECONDS_PER_UNIT

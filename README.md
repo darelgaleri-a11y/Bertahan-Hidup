@@ -97,3 +97,20 @@ Catatan: fitur breeding sebenarnya, transaksi melalui dialog pilihan, dan sistem
 
 ## Catatan pengujian
 File JSON, referensi resource `res://`, dan integritas ZIP diperiksa secara otomatis. Godot executable tidak tersedia di lingkungan pembuatan paket ini, sehingga parsing scene/script dan pengujian runtime belum dapat dikonfirmasi. Peluang breeding memakai RNG saat permainan berjalan; hasil tiap percobaan dapat berbeda.
+
+
+## Perbaikan audit kode — Peti Loot
+- Loot monster yang tidak muat di inventory otomatis masuk Peti Loot.
+- Peti Loot tersimpan di save game dan dapat diambil melalui tombol **AMBIL LOOT** pada panel Inventory.
+- Pengambilan loot bersifat parsial; sisa item tetap tersimpan jika inventory masih penuh.
+- Pakan tidak dapat digunakan pada kolam kosong atau kolam yang sudah siap panen.
+
+
+## Sistem Lahan & Properti (prototipe)
+- NPC Pengelola Lahan mengelola sewa, pembelian, dan perpindahan lahan.
+- Lahan Desa tersedia sejak awal sebagai sewa pengenalan selama 7 hari.
+- Lahan Hutan memerlukan Job Level 1; Lahan Tepi Danau memerlukan Job Level 3.
+- Menyewa lahan memberi akses 7 hari; membeli lahan memberi kepemilikan permanen.
+- Saat pindah, NPC berjalan membawa gerobak barang menuju lokasi baru. Data kolam tetap dipertahankan.
+- Status lahan, kepemilikan, masa sewa, dan lokasi aktif disimpan dalam save game.
+- Harga prototipe masih sementara: Desa 150/5.000, Hutan 250/12.000, Tepi Danau 600/25.000 (sewa/beli).

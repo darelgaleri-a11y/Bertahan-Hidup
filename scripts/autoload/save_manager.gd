@@ -14,6 +14,8 @@ func save_game() -> bool:
         "farm_value": GameManager.farm_value,
         "job_level": GameManager.job_level,
         "inventory": InventoryManager.items,
+        "pending_loot": LootManager.get_save_data(),
+        "property": PropertyManager.get_save_data(),
         "pond": FarmManager.get_save_data()
     }
 
@@ -101,6 +103,10 @@ func load_game() -> bool:
 
     var saved_pond: Dictionary = parsed.get("pond", {})
     FarmManager.load_save_data(saved_pond)
+    var saved_loot: Dictionary = parsed.get("pending_loot", {})
+    LootManager.load_save_data(saved_loot)
+    var saved_property: Dictionary = parsed.get("property", {})
+    PropertyManager.load_save_data(saved_property)
 
     GameManager.money_changed.emit(GameManager.money)
     GameManager.farm_value_changed.emit(GameManager.farm_value)

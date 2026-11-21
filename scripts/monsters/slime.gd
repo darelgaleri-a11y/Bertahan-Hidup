@@ -58,13 +58,25 @@ func take_damage(amount: int) -> void:
 func _die() -> void:
     _dead = true
     velocity = Vector2.ZERO
-    var material_amount := randi_range(material_drop_min, material_drop_max)
-    InventoryManager.add_item("slime_gel", material_amount)
-    var summary := "Slime Gel x%d" % material_amount
+    var minimum_drop := mini(material_drop_min, material_drop_max)
+    var maximum_drop := maxi(material_drop_min, material_drop_max)
+    var material_amount := randi_range(maxi(1, minimum_drop), maxi(1, maximum_drop))
+    var summary_parts := PackedStringArray()
+
+    if InventoryManager.add_item("slime_gel", material_amount):
+        summary_parts.append("Slime Gel x%d" % material_amount)
+    else:
+        LootManager.store_loot("slime_gel", material_amount)
+        summary_parts.append("Slime Gel x%d (Peti Loot)" % material_amount)
 
     if randf() < seed_drop_chance:
-        InventoryManager.add_item("seed_basic", 1)
-        summary += " + Bibit Basic x1"
+        if InventoryManager.add_item("seed_basic", 1):
+            summary_parts.append("Bibit Basic x1")
+        else:
+            LootManager.store_loot("seed_basic", 1)
+            summary_parts.append("Bibit Basic x1 (Peti Loot)")
+
+    var summary := " + ".join(summary_parts)
 
     # Sesuai ketetapan progresi game: monster tidak memberi EXP.
     defeated.emit(summary)

@@ -1,0 +1,50 @@
+{
+  "village": {
+    "name": "Lahan Desa",
+    "description": "Lahan awal yang dekat dengan fasilitas desa.",
+    "min_job_level": 1,
+    "rent_price": 150,
+    "rent_days": 7,
+    "buy_price": 5000,
+    "pond_position": [
+      520,
+      270
+    ],
+    "spawn_position": [
+      380,
+      270
+    ]
+  },
+  "forest": {
+    "name": "Lahan Hutan",
+    "description": "Lahan baru di tepi hutan, membutuhkan Job Level 1.",
+    "min_job_level": 1,
+    "rent_price": 250,
+    "rent_days": 7,
+    "buy_price": 12000,
+    "pond_position": [
+      565,
+      300
+    ],
+    "spawn_position": [
+      400,
+      270
+    ]
+  },
+  "lakeside": {
+    "name": "Lahan Tepi Danau",
+    "description": "Lahan luas dekat air, membutuhkan Job Level 3.",
+    "min_job_level": 3,
+    "rent_price": 600,
+    "rent_days": 7,
+    "buy_price": 25000,
+    "pond_position": [
+      470,
+      300
+    ],
+    "spawn_position": [
+      350,
+      270
+    ]
+  }
+}

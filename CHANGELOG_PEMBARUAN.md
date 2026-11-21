@@ -64,3 +64,20 @@
 - Saat gagal, satu bibit dikembalikan dan 50% biaya dikembalikan.
 - Menambahkan pemeriksaan saldo, jumlah bibit, kapasitas slot, dan stack hasil sebelum transaksi.
 - Menambahkan rollback jika penambahan hasil breeding gagal.
+
+
+## Audit & Bugfix — Loot dan Pakan
+- Menambahkan LootManager sebagai Peti Loot permanen.
+- Memperbaiki loot Slime yang sebelumnya bisa hilang saat inventory penuh.
+- Loot overflow disimpan ke save game dan dapat diklaim sebagian melalui Inventory.
+- Pakan tidak bisa dihabiskan pada kolam kosong atau kolam yang sudah siap panen.
+- Menormalkan batas minimum/maksimum jumlah material drop Slime.
+
+
+## Sistem Lahan & Properti
+- Menambahkan PropertyManager dan katalog lahan JSON.
+- Menambahkan NPC Pengelola Lahan.
+- Menambahkan fungsi sewa 7 hari, pembelian permanen, syarat Job Level, dan perpindahan lokasi.
+- NPC bergerak membawa gerobak saat relokasi; status lahan dan lokasi aktif tersimpan.
+- Mempertahankan Peti Loot dan seluruh fitur versi sebelumnya.
+- Harga dan durasi adalah nilai prototipe sementara untuk pengujian keseimbangan.
