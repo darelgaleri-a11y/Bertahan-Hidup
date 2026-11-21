@@ -39,12 +39,28 @@
 - Menambahkan penjualan item satuan dari panel inventory.
 - Memperbaiki urutan panen: inventory harus menerima ikan sebelum data kolam dikosongkan.
 
-\n## Pemeriksaan Bug Tambahan\n- Memperbaiki pemuatan inventory dari save: ID item yang tidak ada di katalog dibuang, jumlah item dibatasi sesuai stack, dan jumlah slot tetap tervalidasi.\n- Data save dengan nilai jumlah item non-numerik diabaikan agar tidak merusak proses load.\n- Penyegaran daftar inventory kini menghapus node lama secara langsung sebelum membuat daftar baru, mencegah baris UI menumpuk pada beberapa refresh dalam satu frame.\n
+
+## Pemeriksaan Bug Tambahan
+- Memperbaiki pemuatan inventory dari save: ID item yang tidak ada di katalog dibuang, jumlah item dibatasi sesuai stack, dan jumlah slot tetap tervalidasi.
+- Data save dengan nilai jumlah item non-numerik diabaikan agar tidak merusak proses load.
+- Penyegaran daftar inventory kini menghapus node lama secara langsung sebelum membuat daftar baru, mencegah baris UI menumpuk pada beberapa refresh dalam satu frame.
+
 
 ## NPC System — perbaikan dan fondasi
-- Memperbaiki baris resource NPC pada `scenes/main.tscn` yang sebelumnya tersimpan sebagai teks `\\n` literal dan dapat merusak parsing scene.
+- Memperbaiki baris resource NPC pada `scenes/main.tscn` yang sebelumnya tersimpan sebagai teks `\
+` literal dan dapat merusak parsing scene.
 - Menambahkan sprite Pedagang dan Ahli Breeding yang sebelumnya direferensikan scene tetapi belum tersedia.
 - NPC masuk ke group `npcs` dan dapat dikenali melalui `npc_id`.
 - Menambahkan interaksi jarak dekat: E pertama menampilkan dialog, E kedua pada Pedagang membuka toko.
 - Interaksi NPC diprioritaskan dari interaksi kolam untuk menghindari salah aksi.
 - Ahli Breeding saat ini hanya dialog/fondasi; proses breeding belum aktif.
+
+
+## Breeding System Update
+- Menambahkan `BreedingManager` sebagai autoload khusus transaksi breeding.
+- Menambahkan empat tier bibit baru ke katalog item.
+- Menambahkan panel breeding di UI; Ahli Breeding membuka panel setelah interaksi kedua.
+- Menetapkan biaya dan peluang sesuai rancangan: Basic→Advanced 100/90%, Advanced→Rare 250/75%, Rare→Epic 500/60%, Epic→Legendary 1.000/40%.
+- Saat gagal, satu bibit dikembalikan dan 50% biaya dikembalikan.
+- Menambahkan pemeriksaan saldo, jumlah bibit, kapasitas slot, dan stack hasil sebelum transaksi.
+- Menambahkan rollback jika penambahan hasil breeding gagal.

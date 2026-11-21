@@ -15,6 +15,8 @@ var _inventory_list: VBoxContainer
 var _inventory_capacity: Label
 var _shop_panel: PanelContainer
 var _shop_money: Label
+var _breeding_panel: PanelContainer
+var _breeding_content: VBoxContainer
 var _inventory_open := false
 var _shop_open := false
 var _last_npc_id: String = ""
@@ -42,6 +44,7 @@ func _ready() -> void:
     InventoryManager.inventory_changed.connect(_refresh_inventory)
     _create_inventory_ui()
     _create_shop_ui()
+    _create_breeding_ui()
     _create_mobile_controls()
     _refresh()
     _refresh_money()
@@ -88,6 +91,8 @@ func _unhandled_input(event: InputEvent) -> void:
                 _toggle_shop(false)
             elif _inventory_open:
                 _toggle_inventory(false)
+            elif is_instance_valid(_breeding_panel) and _breeding_panel.visible:
+                _toggle_breeding(false)
             get_viewport().set_input_as_handled()
 
 func _interact() -> void:
@@ -142,7 +147,8 @@ func _interact_with_npc(npc: Node2D) -> void:
         _toggle_shop(true)
         _show_message("Toko dibuka. Pilih perlengkapan yang ingin dibeli.")
     elif npc_id == "breeder":
-        _show_message("Ahli Breeding: layanan penggabungan bibit belum aktif. Fitur ini akan dibuat pada tahap Breeding System.")
+        _toggle_breeding(true)
+        _show_message("Pilih dua bibit dengan tier sama untuk mencoba menaikkan kualitasnya.")
     else:
         _show_message("%s: Senang bertemu denganmu!" % npc_name)
 
@@ -236,6 +242,8 @@ func _toggle_inventory(force_state: Variant = null) -> void:
     _inventory_panel.visible = _inventory_open
     if _inventory_open:
         _toggle_shop(false)
+        if is_instance_valid(_breeding_panel):
+            _toggle_breeding(false)
         _refresh_inventory()
 
 func _refresh_inventory() -> void:
@@ -315,6 +323,8 @@ func _toggle_shop(force_state: Variant = null) -> void:
     _shop_panel.visible = _shop_open
     if _shop_open:
         _toggle_inventory(false)
+        if is_instance_valid(_breeding_panel):
+            _toggle_breeding(false)
     _refresh_money()
 
 func _buy_item(item_id: String) -> void:
@@ -339,6 +349,88 @@ func _buy_item(item_id: String) -> void:
             _show_message("Pembelian dibatalkan. Inventory tidak dapat menerima item.")
     _refresh_money()
     _refresh_inventory()
+
+func _create_breeding_ui() -> void:
+    _breeding_panel = PanelContainer.new()
+    _breeding_panel.name = "BreedingPanel"
+    _breeding_panel.position = Vector2(285, 75)
+    _breeding_panel.size = Vector2(390, 390)
+    _breeding_panel.custom_minimum_size = Vector2(390, 390)
+    _breeding_panel.visible = false
+    $CanvasLayer.add_child(_breeding_panel)
+
+    var outer := VBoxContainer.new()
+    _breeding_panel.add_child(outer)
+    var header := HBoxContainer.new()
+    outer.add_child(header)
+    var title := Label.new()
+    title.text = "BREEDING BIBIT"
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    header.add_child(title)
+    var close_button := Button.new()
+    close_button.text = "TUTUP"
+    close_button.pressed.connect(_toggle_breeding.bind(false))
+    header.add_child(close_button)
+
+    var explanation := Label.new()
+    explanation.text = "Gunakan 2 bibit satu tier + biaya Money. Peluang sukses berbeda tiap tier."
+    explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    outer.add_child(explanation)
+
+    var scroll := ScrollContainer.new()
+    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    outer.add_child(scroll)
+    _breeding_content = VBoxContainer.new()
+    _breeding_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(_breeding_content)
+    _refresh_breeding_ui()
+
+func _toggle_breeding(force_state: Variant = null) -> void:
+    if not is_instance_valid(_breeding_panel):
+        return
+    var open := not _breeding_panel.visible if force_state == null else bool(force_state)
+    _breeding_panel.visible = open
+    if open:
+        _toggle_shop(false)
+        _toggle_inventory(false)
+        _refresh_breeding_ui()
+
+func _refresh_breeding_ui() -> void:
+    if not is_instance_valid(_breeding_content):
+        return
+    for child in _breeding_content.get_children():
+        _breeding_content.remove_child(child)
+        child.free()
+
+    var tier_ids := ["seed_basic", "seed_advanced", "seed_rare", "seed_epic"]
+    for seed_id in tier_ids:
+        var recipe: Dictionary = BreedingManager.get_recipe(seed_id)
+        if recipe.is_empty():
+            continue
+        var count := InventoryManager.get_amount(seed_id)
+        var row := VBoxContainer.new()
+        _breeding_content.add_child(row)
+        var detail := Label.new()
+        detail.text = "%s → %s | Milik: %d | Biaya: %d | Peluang: %d%%" % [
+            InventoryManager.get_item_name(seed_id),
+            InventoryManager.get_item_name(str(recipe["output"])),
+            count, int(recipe["fee"]), int(float(recipe["chance"]) * 100.0)
+        ]
+        detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        row.add_child(detail)
+        var action := Button.new()
+        action.text = "Gabungkan 2 Bibit"
+        action.disabled = count < 2 or GameManager.money < int(recipe["fee"])
+        action.custom_minimum_size = Vector2(0, 42)
+        action.pressed.connect(_attempt_breeding.bind(seed_id))
+        row.add_child(action)
+
+func _attempt_breeding(seed_id: String) -> void:
+    var result: Dictionary = BreedingManager.attempt_breeding(seed_id)
+    _show_message(str(result.get("message", "Breeding selesai.")))
+    _refresh_money()
+    _refresh_inventory()
+    _refresh_breeding_ui()
 
 func _create_mobile_controls() -> void:
     if not OS.has_feature("mobile") and not DisplayServer.is_touchscreen_available():

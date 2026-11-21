@@ -52,6 +52,12 @@ func get_sell_price(item_id: String) -> int:
 func get_used_slots() -> int:
     return items.size()
 
+func can_add_item(item_id: String, amount: int = 1) -> bool:
+    if amount <= 0 or not item_catalog.has(item_id):
+        return false
+    var current := int(items.get(item_id, 0))
+    return current + amount <= get_stack_limit(item_id) and (current > 0 or items.size() < SLOT_LIMIT)
+
 func add_item(item_id: String, amount: int = 1) -> bool:
     if amount <= 0 or not item_catalog.has(item_id):
         return false

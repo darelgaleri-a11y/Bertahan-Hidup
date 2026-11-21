@@ -22,5 +22,29 @@
     "buy_price": 0,
     "sell_price": 25,
     "stack_limit": 99
+  },
+  "seed_advanced": {
+    "name": "Bibit Advanced",
+    "buy_price": 0,
+    "sell_price": 100,
+    "stack_limit": 99
+  },
+  "seed_rare": {
+    "name": "Bibit Rare",
+    "buy_price": 0,
+    "sell_price": 150,
+    "stack_limit": 99
+  },
+  "seed_epic": {
+    "name": "Bibit Epic",
+    "buy_price": 0,
+    "sell_price": 250,
+    "stack_limit": 99
+  },
+  "seed_legendary": {
+    "name": "Bibit Legendary",
+    "buy_price": 0,
+    "sell_price": 500,
+    "stack_limit": 99
   }
 }

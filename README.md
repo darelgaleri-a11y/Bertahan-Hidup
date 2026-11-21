@@ -65,3 +65,35 @@ Paket diperiksa secara statis (JSON, referensi scene, integritas ZIP). Godot tid
 - Sprite NPC pixel-art 32×32 disimpan di `assets/sprites/npcs/`.
 
 Catatan: fitur breeding sebenarnya, transaksi melalui dialog pilihan, dan sistem jadwal/pergerakan NPC belum dibuat pada tahap ini.
+
+
+## Breeding System Update
+- Ahli Breeding kini membuka panel breeding saat tombol E ditekan dua kali ketika pemain berada di dekatnya.
+- Resep: 2 Basic → Advanced (100 Money, 90%); 2 Advanced → Rare (250 Money, 75%); 2 Rare → Epic (500 Money, 60%); 2 Epic → Legendary (1.000 Money, 40%).
+- Jika gagal: satu bibit dikembalikan, satu bibit hilang, dan 50% biaya dikembalikan.
+- Pemeriksaan inventory dan saldo dilakukan sebelum transaksi.
+- Katalog sudah memuat bibit Advanced, Rare, Epic, dan Legendary.
+- Proses breeding dipisahkan ke `BreedingManager` agar mudah diuji dan dikembangkan.
+
+
+## Checklist perkembangan terbaru
+- [x] Struktur proyek Godot 4.x dan aset dasar Detailed Pixel Art.
+- [x] Player movement, input keyboard, dan kontrol sentuh dasar.
+- [x] HUD, HP, respawn, dan combat dasar.
+- [x] Kolam ikan, bibit, pakan, pertumbuhan offline, dan panen.
+- [x] Farm Value dan Job Level dasar.
+- [x] Save/load JSON, backup, dan validasi inventory.
+- [x] Slime AI, serangan, loot material, dan peluang drop bibit.
+- [x] Inventory 30 slot, stack, penjualan item, dan toko.
+- [x] NPC Pedagang dan Ahli Breeding, dialog, serta interaksi jarak dekat.
+- [x] Breeding Basic→Advanced→Rare→Epic→Legendary dengan biaya dan peluang.
+- [ ] Pengujian runtime menyeluruh di Godot 4.x.
+- [ ] Pengujian perangkat Android dan kontrol layar sentuh.
+- [ ] NPC desa tambahan, jadwal/pergerakan NPC, dan sistem relokasi barang NPC.
+- [ ] Sewa/pembelian lahan dan sistem perpindahan tempat tinggal.
+- [ ] Quest, equipment, statistik karakter, dan skill.
+- [ ] Monster tambahan, hutan, gua, dan Danger Zone.
+- [ ] Audio final, tutorial, polish UI, optimasi, dan build APK.
+
+## Catatan pengujian
+File JSON, referensi resource `res://`, dan integritas ZIP diperiksa secara otomatis. Godot executable tidak tersedia di lingkungan pembuatan paket ini, sehingga parsing scene/script dan pengujian runtime belum dapat dikonfirmasi. Peluang breeding memakai RNG saat permainan berjalan; hasil tiap percobaan dapat berbeda.
