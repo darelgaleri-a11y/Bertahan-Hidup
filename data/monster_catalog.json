@@ -6,6 +6,9 @@
     "defense": 2,
     "move_speed": 30,
     "seed_drop_chance": 0.1,
-    "loot_item": "slime_gel"
+    "loot_item": "slime_gel",
+    "material_drop_min": 1,
+    "material_drop_max": 2,
+    "experience_reward": 0
   }
 }

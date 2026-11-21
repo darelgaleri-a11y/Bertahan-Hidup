@@ -48,3 +48,8 @@ GameManager="*res://scripts/autoload/game_manager.gd"
 InventoryManager="*res://scripts/autoload/inventory_manager.gd"
 FarmManager="*res://scripts/autoload/farm_manager.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
+
+attack={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":KEY_J), Object(InputEventKey,"physical_keycode":KEY_SPACE)]
+}

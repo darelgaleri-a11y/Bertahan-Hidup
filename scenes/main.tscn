@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2"]
 [ext_resource type="Texture2D" path="res://assets/tiles/world_ground.png" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/pond.png" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/slime.tscn" id="5"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -22,6 +23,9 @@ texture_filter = 1
 
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(380, 270)
+
+[node name="Slime" parent="." instance=ExtResource("5")]
+position = Vector2(700, 270)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -52,3 +56,10 @@ offset_top = 475.0
 offset_right = 940.0
 offset_bottom = 520.0
 text = "WASD / tombol panah untuk bergerak. E untuk interaksi."
+
+[node name="CombatInfo" type="Label" parent="CanvasLayer"]
+offset_left = 650.0
+offset_top = 18.0
+offset_right = 940.0
+offset_bottom = 58.0
+text = "Monster: Slime | J/Space: Serang"
