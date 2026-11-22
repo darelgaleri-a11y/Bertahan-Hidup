@@ -1,6 +1,5 @@
 extends Node2D
-## Titik pengumpulan resource. Dipanggil melalui tombol Interaksi (E / touch).
-## Setiap node memilih dirinya hanya jika ia adalah titik terdekat dari pemain.
+## Titik pengumpulan resource. Membutuhkan alat yang sesuai untuk pohon dan mineral.
 
 var item_id: String = ""
 var display_name: String = "Resource"
@@ -90,14 +89,33 @@ func _is_nearest_available_node() -> bool:
 func _gather() -> void:
     if _remaining_gathers <= 0 or not InventoryManager.item_catalog.has(item_id):
         return
+
+    var tool_data: Dictionary = {}
+    if tool_type != "hand":
+        tool_data = ToolManager.get_best_tool(tool_type)
+        if tool_data.is_empty():
+            var needed := "Kapak" if tool_type == "axe" else "Beliung"
+            GameManager.notification_requested.emit(
+                "%s membutuhkan %s. Buat atau miliki alat tersebut terlebih dahulu." % [display_name, needed]
+            )
+            return
+
     _play_tool_swing()
     var amount := randi_range(gather_min, gather_max)
+    if tool_type != "hand":
+        amount += ToolManager.get_gather_bonus(tool_type)
+
     if not InventoryManager.add_item(item_id, amount):
         LootManager.store_loot(item_id, amount)
+
     _remaining_gathers -= 1
+    var tool_message := ""
+    if not tool_data.is_empty():
+        tool_message = " dengan %s" % str(tool_data.get("name", "alat"))
     GameManager.notification_requested.emit(
-        "%s: %s x%d dikumpulkan. Sisa: %d/%d." % [
+        "%s%s: %s x%d dikumpulkan. Sisa: %d/%d." % [
             display_name,
+            tool_message,
             InventoryManager.get_item_name(item_id),
             amount,
             _remaining_gathers,

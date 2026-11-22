@@ -207,5 +207,66 @@
     "buy_price": 0,
     "sell_price": 25,
     "stack_limit": 20
+  },
+  "workbench_basic": {
+    "name": "Meja Kerja Dasar",
+    "buy_price": 0,
+    "sell_price": 0,
+    "stack_limit": 1
+  },
+  "iron_sword": {
+    "name": "Pedang Besi",
+    "buy_price": 0,
+    "sell_price": 180,
+    "stack_limit": 1,
+    "equipment_slot": "weapon",
+    "attack": 18
+  },
+  "reinforced_armor": {
+    "name": "Zirah Perkuatan",
+    "buy_price": 0,
+    "sell_price": 160,
+    "stack_limit": 1,
+    "equipment_slot": "armor",
+    "defense": 5,
+    "max_health": 25
+  },
+  "wooden_axe": {
+    "name": "Kapak Kayu",
+    "buy_price": 0,
+    "sell_price": 25,
+    "stack_limit": 1,
+    "tool_type": "axe",
+    "tool_power": 1
+  },
+  "wooden_pickaxe": {
+    "name": "Beliung Kayu",
+    "buy_price": 0,
+    "sell_price": 25,
+    "stack_limit": 1,
+    "tool_type": "pickaxe",
+    "tool_power": 1
+  },
+  "iron_axe": {
+    "name": "Kapak Besi",
+    "buy_price": 0,
+    "sell_price": 90,
+    "stack_limit": 1,
+    "tool_type": "axe",
+    "tool_power": 2
+  },
+  "iron_pickaxe": {
+    "name": "Beliung Besi",
+    "buy_price": 0,
+    "sell_price": 90,
+    "stack_limit": 1,
+    "tool_type": "pickaxe",
+    "tool_power": 2
+  },
+  "greater_potion": {
+    "name": "Ramuan Pemulih Besar",
+    "buy_price": 0,
+    "sell_price": 60,
+    "stack_limit": 10
   }
 }

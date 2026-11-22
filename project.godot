@@ -1,4 +1,4 @@
-; Bertahan Hidup - Godot 4.x starter project
+; Bertahan Hidup - Godot 4.x
 config_version=5
 
 [application]
@@ -51,6 +51,7 @@ attack={
 GameManager="*res://scripts/autoload/game_manager.gd"
 RegionManager="*res://scripts/autoload/region_manager.gd"
 InventoryManager="*res://scripts/autoload/inventory_manager.gd"
+ToolManager="*res://scripts/autoload/tool_manager.gd"
 FarmManager="*res://scripts/autoload/farm_manager.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 BreedingManager="*res://scripts/autoload/breeding_manager.gd"
