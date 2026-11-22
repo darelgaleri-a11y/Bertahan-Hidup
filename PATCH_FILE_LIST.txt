@@ -1,10 +1,6 @@
-PATCH ASSET 022 — FILE YANG DITAMBAHKAN/DIUPDATE
-- scripts/resources/resource_gather_node.gd (UPDATE)
-- scripts/regions/forest_environment.gd (UPDATE)
-- scripts/regions/cave_environment.gd (UPDATE)
-- scripts/regions/danger_zone_environment.gd (UPDATE)
-- assets/sprites/tools/tool_swing_atlas_32px.png (BARU)
-- assets/sprites/tools/tool_swing_manifest.json (BARU)
-- docs/ASSET_022_RESOURCE_TOOLS.md (BARU)
+PATCH ASSET 023 — FILE DITAMBAHKAN/DIUPDATE
+- scripts/autoload/crafting_manager.gd (BARU)
+- data/item_catalog.json (UPDATE: 5 item hasil crafting)
+- project.godot (UPDATE: mendaftarkan CraftingManager sebagai Autoload)
 
-Ekstrak seluruh isi ZIP ke root proyek Godot, yaitu folder yang berisi project.godot.
+Ekstrak seluruh isi ZIP ke folder utama proyek Godot (folder yang berisi project.godot).

@@ -177,5 +177,35 @@
     "buy_price": 0,
     "sell_price": 120,
     "stack_limit": 99
+  },
+  "wooden_plank": {
+    "name": "Papan Kayu",
+    "buy_price": 0,
+    "sell_price": 14,
+    "stack_limit": 99
+  },
+  "stone_brick": {
+    "name": "Batu Bata",
+    "buy_price": 0,
+    "sell_price": 12,
+    "stack_limit": 99
+  },
+  "iron_ingot": {
+    "name": "Batangan Besi",
+    "buy_price": 0,
+    "sell_price": 60,
+    "stack_limit": 99
+  },
+  "crystal_core": {
+    "name": "Inti Kristal",
+    "buy_price": 0,
+    "sell_price": 100,
+    "stack_limit": 99
+  },
+  "healing_potion": {
+    "name": "Ramuan Pemulih",
+    "buy_price": 0,
+    "sell_price": 25,
+    "stack_limit": 20
   }
 }
