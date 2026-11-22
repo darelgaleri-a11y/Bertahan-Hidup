@@ -1,6 +1,8 @@
-scripts/autoload/tool_manager.gd
-scripts/autoload/save_manager.gd
-scripts/autoload/crafting_manager.gd
-scripts/resources/resource_gather_node.gd
-data/item_catalog.json
-docs/ASSET_026_TOOL_DURABILITY_UPGRADE.md
+ASSET 028 — SKILL SPECIALIZATION
+Updated:
+- scripts/autoload/skill_manager.gd
+Added:
+- docs/ASSET_028_SKILL_SPECIALIZATION.md
+
+Installation: extract this ZIP into the Godot project root and overwrite the listed script.
+No project.godot change is required; SkillManager is already registered as an Autoload.
