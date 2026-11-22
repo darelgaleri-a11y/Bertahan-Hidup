@@ -10,12 +10,12 @@ const RECIPES := {
     "crystal_core": {"name":"Inti Kristal","category":"Bahan Dasar","description":"Komponen energi dari kristal langka.","ingredients":{"blue_crystal":2,"purple_crystal":1},"output":"crystal_core","amount":1},
     "healing_potion": {"name":"Ramuan Pemulih","category":"Ramuan","description":"Ramuan sederhana dari jamur.","ingredients":{"forest_mushroom":2,"cave_mushroom":1},"output":"healing_potion","amount":1},
     "workbench_basic": {"name":"Meja Kerja Dasar","category":"Stasiun Kerja","description":"Membuka resep perlengkapan tingkat lanjut.","ingredients":{"wooden_plank":6,"stone_brick":4},"output":"workbench_basic","amount":1},
-    "wooden_axe": {"name":"Kapak Kayu","category":"Peralatan","description":"Alat dasar untuk mengumpulkan kayu.","ingredients":{"wooden_plank":3,"stone":2},"output":"wooden_axe","amount":1},
-    "wooden_pickaxe": {"name":"Beliung Kayu","category":"Peralatan","description":"Alat dasar untuk menambang mineral.","ingredients":{"wooden_plank":3,"stone":3},"output":"wooden_pickaxe","amount":1},
+    "wooden_axe": {"name":"Kapak Kayu","category":"Peralatan","description":"Alat dasar untuk mengumpulkan kayu. Daya tahan 100.","ingredients":{"wooden_plank":3,"stone":2},"output":"wooden_axe","amount":1},
+    "wooden_pickaxe": {"name":"Beliung Kayu","category":"Peralatan","description":"Alat dasar untuk menambang mineral. Daya tahan 100.","ingredients":{"wooden_plank":3,"stone":3},"output":"wooden_pickaxe","amount":1},
     "iron_sword": {"name":"Pedang Besi","category":"Perlengkapan Lanjutan","description":"Senjata lebih kuat untuk menghadapi monster.","station":"workbench_basic","ingredients":{"iron_ingot":5,"wooden_plank":2,"wolf_fang":2},"output":"iron_sword","amount":1},
     "reinforced_armor": {"name":"Zirah Perkuatan","category":"Perlengkapan Lanjutan","description":"Armor dengan pertahanan lebih baik.","station":"workbench_basic","ingredients":{"iron_ingot":4,"stone_brick":3,"beast_claw":1},"output":"reinforced_armor","amount":1},
-    "iron_axe": {"name":"Kapak Besi","category":"Peralatan","description":"Kapak tingkat lanjut dengan hasil gathering lebih banyak.","station":"workbench_basic","ingredients":{"iron_ingot":3,"wooden_plank":2},"output":"iron_axe","amount":1},
-    "iron_pickaxe": {"name":"Beliung Besi","category":"Peralatan","description":"Beliung tingkat lanjut dengan hasil mining lebih banyak.","station":"workbench_basic","ingredients":{"iron_ingot":3,"wooden_plank":2,"stone":2},"output":"iron_pickaxe","amount":1},
+    "iron_axe": {"name":"Kapak Besi (Upgrade)","category":"Peralatan","description":"Upgrade dari Kapak Kayu. Daya tahan 180 dan hasil gathering lebih banyak.","station":"workbench_basic","ingredients":{"wooden_axe":1,"iron_ingot":3,"wooden_plank":2},"output":"iron_axe","amount":1},
+    "iron_pickaxe": {"name":"Beliung Besi (Upgrade)","category":"Peralatan","description":"Upgrade dari Beliung Kayu. Daya tahan 180 dan hasil mining lebih banyak.","station":"workbench_basic","ingredients":{"wooden_pickaxe":1,"iron_ingot":3,"wooden_plank":2,"stone":2},"output":"iron_pickaxe","amount":1},
     "greater_potion": {"name":"Ramuan Pemulih Besar","category":"Ramuan","description":"Ramuan tingkat lanjut.","station":"workbench_basic","ingredients":{"healing_potion":2,"crystal_core":1,"cave_mushroom":2},"output":"greater_potion","amount":1}
 }
 
@@ -98,15 +98,21 @@ func craft(recipe_id: String) -> Dictionary:
     if not InventoryManager.can_add_item(output_id, output_amount):
         return {"ok": false, "message": "Inventory penuh atau kapasitas stack hasil tidak cukup."}
     var ingredients: Dictionary = recipe.get("ingredients", {})
+    var removed: Dictionary = {}
     for key in ingredients.keys():
-        if not InventoryManager.remove_item(str(key), int(ingredients[key])):
-            for rollback_key in ingredients.keys():
-                InventoryManager.add_item(str(rollback_key), int(ingredients[rollback_key]))
+        var ingredient_id := str(key)
+        var ingredient_amount := int(ingredients[key])
+        if not InventoryManager.remove_item(ingredient_id, ingredient_amount):
+            for rollback_key in removed.keys():
+                InventoryManager.add_item(str(rollback_key), int(removed[rollback_key]))
             return {"ok": false, "message": "Gagal mengambil bahan crafting."}
+        removed[ingredient_id] = ingredient_amount
     if not InventoryManager.add_item(output_id, output_amount):
-        for key in ingredients.keys():
-            InventoryManager.add_item(str(key), int(ingredients[key]))
+        for key in removed.keys():
+            InventoryManager.add_item(str(key), int(removed[key]))
         return {"ok": false, "message": "Hasil gagal disimpan; bahan dikembalikan."}
+    if ToolManager.TOOL_IDS.has(output_id):
+        ToolManager._ensure_tool_state(output_id)
     crafting_completed.emit(recipe_id, output_id, output_amount)
     GameManager.notification_requested.emit("Berhasil membuat %s x%d." % [InventoryManager.get_item_name(output_id), output_amount])
     _refresh_ui()
@@ -143,7 +149,7 @@ func _build_ui() -> void:
     close_button.pressed.connect(toggle_ui.bind(false))
     header.add_child(close_button)
     var hint := Label.new()
-    hint.text = "Tekan C untuk membuka/menutup. Resep lanjutan membutuhkan Meja Kerja Dasar."
+    hint.text = "C: crafting | T: kondisi & perbaikan alat. Upgrade besi memerlukan alat kayu dan Meja Kerja."
     hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     outer.add_child(hint)
     _category_picker = OptionButton.new()

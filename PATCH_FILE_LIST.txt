@@ -1,10 +1,6 @@
-UPDATED
-project.godot
-data/item_catalog.json
+scripts/autoload/tool_manager.gd
+scripts/autoload/save_manager.gd
 scripts/autoload/crafting_manager.gd
 scripts/resources/resource_gather_node.gd
-
-ADDED
-scripts/autoload/tool_manager.gd
-docs/ASSET_025_TOOL_GAMEPLAY_INTEGRATION.md
-PATCH_FILE_LIST.txt
+data/item_catalog.json
+docs/ASSET_026_TOOL_DURABILITY_UPGRADE.md

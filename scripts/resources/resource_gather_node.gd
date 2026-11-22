@@ -89,14 +89,13 @@ func _is_nearest_available_node() -> bool:
 func _gather() -> void:
     if _remaining_gathers <= 0 or not InventoryManager.item_catalog.has(item_id):
         return
-
     var tool_data: Dictionary = {}
     if tool_type != "hand":
         tool_data = ToolManager.get_best_tool(tool_type)
         if tool_data.is_empty():
             var needed := "Kapak" if tool_type == "axe" else "Beliung"
             GameManager.notification_requested.emit(
-                "%s membutuhkan %s. Buat atau miliki alat tersebut terlebih dahulu." % [display_name, needed]
+                "%s membutuhkan %s yang masih dapat digunakan. Buat, miliki, atau perbaiki alat tersebut." % [display_name, needed]
             )
             return
 
@@ -104,9 +103,11 @@ func _gather() -> void:
     var amount := randi_range(gather_min, gather_max)
     if tool_type != "hand":
         amount += ToolManager.get_gather_bonus(tool_type)
-
     if not InventoryManager.add_item(item_id, amount):
         LootManager.store_loot(item_id, amount)
+
+    if not tool_data.is_empty():
+        ToolManager.use_tool(str(tool_data.get("item_id", "")), 1)
 
     _remaining_gathers -= 1
     var tool_message := ""

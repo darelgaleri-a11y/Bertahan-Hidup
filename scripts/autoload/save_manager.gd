@@ -3,7 +3,7 @@ extends Node
 const SAVE_PATH := "user://savegame.json"
 const TEMP_PATH := "user://savegame.json.tmp"
 const BACKUP_PATH := "user://savegame_backup.json"
-const SAVE_VERSION := 6
+const SAVE_VERSION := 7
 
 func save_game() -> bool:
     FarmManager.update_offline()
@@ -15,6 +15,7 @@ func save_game() -> bool:
         "farm_value": GameManager.farm_value,
         "job_level": GameManager.job_level,
         "inventory": InventoryManager.items,
+        "tools": ToolManager.get_save_data(),
         "pending_loot": LootManager.get_save_data(),
         "property": PropertyManager.get_save_data(),
         "quests": QuestManager.get_save_data(),
@@ -115,6 +116,10 @@ func load_game() -> bool:
             if amount > 0:
                 InventoryManager.items[str(item_id)] = amount
     InventoryManager.sanitize_inventory()
+
+    var saved_tools_value = parsed.get("tools", {})
+    var saved_tools: Dictionary = saved_tools_value if typeof(saved_tools_value) == TYPE_DICTIONARY else {}
+    ToolManager.load_save_data(saved_tools)
 
     var saved_pond: Dictionary = parsed.get("pond", {})
     FarmManager.load_save_data(saved_pond)
