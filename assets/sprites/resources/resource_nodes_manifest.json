@@ -1,0 +1,68 @@
+{
+  "name": "Bertahan Hidup - Asset 021 Resource Nodes",
+  "style": "Detailed Pixel Art",
+  "base_tile_size": [
+    16,
+    16
+  ],
+  "cell_size": [
+    32,
+    32
+  ],
+  "atlas_size": [
+    192,
+    64
+  ],
+  "columns": 6,
+  "rows": 2,
+  "sprites": {
+    "wood_log": [
+      0,
+      0
+    ],
+    "stone": [
+      1,
+      0
+    ],
+    "mushroom": [
+      2,
+      0
+    ],
+    "blue_crystal": [
+      3,
+      0
+    ],
+    "iron_ore": [
+      4,
+      0
+    ],
+    "ember_crystal": [
+      5,
+      0
+    ],
+    "blue_crystal_variant": [
+      0,
+      1
+    ],
+    "purple_crystal": [
+      1,
+      1
+    ],
+    "cave_mushroom": [
+      2,
+      1
+    ],
+    "cyan_shard": [
+      3,
+      1
+    ],
+    "ancient_stone": [
+      4,
+      1
+    ],
+    "ember_shard": [
+      5,
+      1
+    ]
+  }
+}

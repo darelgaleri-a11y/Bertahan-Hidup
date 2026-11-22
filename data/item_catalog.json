@@ -111,5 +111,71 @@
     "buy_price": 0,
     "sell_price": 150,
     "stack_limit": 99
+  },
+  "wood": {
+    "name": "Kayu",
+    "buy_price": 0,
+    "sell_price": 8,
+    "stack_limit": 99
+  },
+  "stone": {
+    "name": "Batu",
+    "buy_price": 0,
+    "sell_price": 6,
+    "stack_limit": 99
+  },
+  "forest_mushroom": {
+    "name": "Jamur Hutan",
+    "buy_price": 0,
+    "sell_price": 12,
+    "stack_limit": 99
+  },
+  "blue_crystal": {
+    "name": "Kristal Biru",
+    "buy_price": 0,
+    "sell_price": 35,
+    "stack_limit": 99
+  },
+  "iron_ore": {
+    "name": "Bijih Besi",
+    "buy_price": 0,
+    "sell_price": 28,
+    "stack_limit": 99
+  },
+  "purple_crystal": {
+    "name": "Kristal Ungu",
+    "buy_price": 0,
+    "sell_price": 55,
+    "stack_limit": 99
+  },
+  "cave_mushroom": {
+    "name": "Jamur Gua",
+    "buy_price": 0,
+    "sell_price": 18,
+    "stack_limit": 99
+  },
+  "charred_wood": {
+    "name": "Kayu Hangus",
+    "buy_price": 0,
+    "sell_price": 16,
+    "stack_limit": 99
+  },
+  "blackstone": {
+    "name": "Batu Hitam",
+    "buy_price": 0,
+    "sell_price": 22,
+    "stack_limit": 99
+  },
+  "ember_crystal": {
+    "name": "Kristal Bara",
+    "buy_price": 0,
+    "sell_price": 80,
+    "stack_limit": 99
+  },
+  "ancient_shard": {
+    "name": "Pecahan Kuno",
+    "buy_price": 0,
+    "sell_price": 120,
+    "stack_limit": 99
   }
 }
