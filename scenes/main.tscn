@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2"]
-[ext_resource type="Texture2D" path="res://assets/tiles/world_ground.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/tiles/village/village_main_ground_16px.png" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/pond.png" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/slime.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/npcs/shopkeeper.tscn" id="6"]
@@ -49,7 +49,7 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="CanvasLayer/Panel/VBox"]
 layout_mode = 2
-text = "BERTAHAN HIDUP — PROTOTIPE"
+text = "BERTAHAN HIDUP — DESA AWAL"
 
 [node name="Money" type="Label" parent="CanvasLayer/Panel/VBox"]
 layout_mode = 2
