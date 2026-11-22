@@ -1,0 +1,65 @@
+{
+  "asset_pack": "Bertahan Hidup - Asset 020 Danger Zone Integration",
+  "visual_style": "Detailed Pixel Art",
+  "base_tile_size": [
+    16,
+    16
+  ],
+  "prop_cell_size": [
+    32,
+    32
+  ],
+  "ground_layout": "assets/tiles/region/danger_zone_map_layout.png",
+  "props_atlas": "assets/sprites/danger_zone/danger_zone_props_atlas_32px.png",
+  "props": {
+    "dead_tree": [
+      0,
+      0
+    ],
+    "hazard_crystal": [
+      32,
+      0
+    ],
+    "black_boulder": [
+      64,
+      0
+    ],
+    "basalt_pillar": [
+      96,
+      0
+    ],
+    "thorn_bush": [
+      128,
+      0
+    ],
+    "ember_vent": [
+      160,
+      0
+    ],
+    "bones": [
+      0,
+      32
+    ],
+    "ruined_altar": [
+      32,
+      32
+    ],
+    "spike_trap": [
+      64,
+      32
+    ],
+    "charred_stump": [
+      96,
+      32
+    ],
+    "warning_rock": [
+      128,
+      32
+    ],
+    "ember_lantern": [
+      160,
+      32
+    ]
+  },
+  "notes": "Dekorasi dan penghalang visual untuk Zona Bahaya. Hazard belum memiliki damage/interaksi; itu ditunda ke tahap mekanik gameplay."
+}

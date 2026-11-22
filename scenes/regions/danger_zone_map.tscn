@@ -1,0 +1,135 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/tiles/region/danger_zone_map_layout.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/danger_zone/danger_zone_props_atlas_32px.png" id="2"]
+[ext_resource type="Script" path="res://scripts/regions/danger_zone_environment.gd" id="3"]
+
+[sub_resource type="RectangleShape2D" id="DeadTreeCollision"]
+size = Vector2(18, 16)
+[sub_resource type="RectangleShape2D" id="BoulderCollision"]
+size = Vector2(24, 16)
+[sub_resource type="RectangleShape2D" id="PillarCollision"]
+size = Vector2(20, 20)
+[sub_resource type="RectangleShape2D" id="AltarCollision"]
+size = Vector2(22, 14)
+
+[node name="DangerZoneEnvironment" type="Node2D"]
+visible = false
+script = ExtResource("3")
+
+[node name="GroundVisual" type="Sprite2D" parent="."]
+position = Vector2(480, 272)
+texture = ExtResource("1")
+texture_filter = 1
+z_index = 0
+
+[node name="Props" type="Node2D" parent="."]
+
+[node name="DeadTree" type="Sprite2D" parent="Props"]
+position = Vector2(145, 115)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 0, 32, 32)
+texture_filter = 1
+z_index = 2
+[node name="DeadTreeBody" type="StaticBody2D" parent="Props"]
+position = Vector2(145, 127)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/DeadTreeBody"]
+shape = SubResource("DeadTreeCollision")
+
+[node name="HazardCrystal" type="Sprite2D" parent="Props"]
+position = Vector2(340, 110)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(32, 0, 32, 32)
+texture_filter = 1
+
+[node name="BlackBoulder" type="Sprite2D" parent="Props"]
+position = Vector2(310, 390)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(64, 0, 32, 32)
+texture_filter = 1
+[node name="BlackBoulderBody" type="StaticBody2D" parent="Props"]
+position = Vector2(310, 402)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/BlackBoulderBody"]
+shape = SubResource("BoulderCollision")
+
+[node name="BasaltPillar" type="Sprite2D" parent="Props"]
+position = Vector2(565, 170)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(96, 0, 32, 32)
+texture_filter = 1
+[node name="BasaltPillarBody" type="StaticBody2D" parent="Props"]
+position = Vector2(565, 183)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/BasaltPillarBody"]
+shape = SubResource("PillarCollision")
+
+[node name="ThornBush" type="Sprite2D" parent="Props"]
+position = Vector2(760, 120)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(128, 0, 32, 32)
+texture_filter = 1
+
+[node name="EmberVent" type="Sprite2D" parent="Props"]
+position = Vector2(820, 345)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(160, 0, 32, 32)
+texture_filter = 1
+
+[node name="Bones" type="Sprite2D" parent="Props"]
+position = Vector2(180, 445)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 32, 32, 32)
+texture_filter = 1
+
+[node name="RuinedAltar" type="Sprite2D" parent="Props"]
+position = Vector2(475, 430)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(32, 32, 32, 32)
+texture_filter = 1
+[node name="RuinedAltarBody" type="StaticBody2D" parent="Props"]
+position = Vector2(475, 442)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/RuinedAltarBody"]
+shape = SubResource("AltarCollision")
+
+[node name="SpikeTrap" type="Sprite2D" parent="Props"]
+position = Vector2(675, 465)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(64, 32, 32, 32)
+texture_filter = 1
+
+[node name="CharredStump" type="Sprite2D" parent="Props"]
+position = Vector2(95, 300)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(96, 32, 32, 32)
+texture_filter = 1
+
+[node name="WarningRock" type="Sprite2D" parent="Props"]
+position = Vector2(710, 260)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(128, 32, 32, 32)
+texture_filter = 1
+
+[node name="EmberLantern" type="Sprite2D" parent="Props"]
+position = Vector2(460, 100)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(160, 32, 32, 32)
+texture_filter = 1

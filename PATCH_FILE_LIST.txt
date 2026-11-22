@@ -1,0 +1,9 @@
+scenes/main.tscn
+scenes/regions/danger_zone_map.tscn
+scripts/regions/danger_zone_environment.gd
+assets/tiles/region/danger_zone_map_layout.png
+assets/sprites/danger_zone/danger_zone_props_atlas_32px.png
+assets/sprites/danger_zone/danger_zone_props_manifest.json
+docs/ASSET_020_DANGER_ZONE_INTEGRATION_GUIDE.md
+docs/PROJECT_CONTINUATION_CONTEXT.md
+docs/CONTINUATION_PROMPT_NEW_CHAT.md
