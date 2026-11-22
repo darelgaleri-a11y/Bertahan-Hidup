@@ -1,0 +1,33 @@
+{
+  "asset": "022 - Resource Tools & Gathering Animations",
+  "base_tile_px": 16,
+  "atlas_cell_px": [
+    32,
+    32
+  ],
+  "atlas_size_px": [
+    64,
+    32
+  ],
+  "cells": {
+    "axe": {
+      "region": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "use": "visual swing when gathering wood"
+    },
+    "pickaxe": {
+      "region": [
+        32,
+        0,
+        32,
+        32
+      ],
+      "use": "visual swing when mining stone, ore and crystals"
+    }
+  },
+  "notes": "Visual prototype only; no tool inventory, durability, crafting or tool gating."
+}

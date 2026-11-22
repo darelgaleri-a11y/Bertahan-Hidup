@@ -11,11 +11,18 @@ var gather_max: int = 2
 var max_gathers: int = 3
 var respawn_seconds: float = 18.0
 var interaction_range: float = 58.0
+var tool_type: String = "hand"
 
 var _remaining_gathers: int = 0
 var _player: Node2D
 var _sprite: Sprite2D
 var _busy: bool = false
+
+const TOOL_ATLAS := "res://assets/sprites/tools/tool_swing_atlas_32px.png"
+const TOOL_REGIONS := {
+    "axe": Rect2(0, 0, 32, 32),
+    "pickaxe": Rect2(32, 0, 32, 32)
+}
 
 func configure(
     p_item_id: String,
@@ -25,7 +32,8 @@ func configure(
     p_gather_min: int = 1,
     p_gather_max: int = 2,
     p_max_gathers: int = 3,
-    p_respawn_seconds: float = 18.0
+    p_respawn_seconds: float = 18.0,
+    p_tool_type: String = "hand"
 ) -> void:
     item_id = p_item_id
     display_name = p_display_name
@@ -35,6 +43,7 @@ func configure(
     gather_max = maxi(gather_min, p_gather_max)
     max_gathers = maxi(1, p_max_gathers)
     respawn_seconds = maxf(1.0, p_respawn_seconds)
+    tool_type = p_tool_type if TOOL_REGIONS.has(p_tool_type) else "hand"
 
 func _ready() -> void:
     _remaining_gathers = max_gathers
@@ -81,6 +90,7 @@ func _is_nearest_available_node() -> bool:
 func _gather() -> void:
     if _remaining_gathers <= 0 or not InventoryManager.item_catalog.has(item_id):
         return
+    _play_tool_swing()
     var amount := randi_range(gather_min, gather_max)
     if not InventoryManager.add_item(item_id, amount):
         LootManager.store_loot(item_id, amount)
@@ -96,6 +106,29 @@ func _gather() -> void:
     )
     if _remaining_gathers <= 0:
         _deplete()
+
+func _play_tool_swing() -> void:
+    if tool_type == "hand" or not is_instance_valid(_player):
+        return
+    var texture := load(TOOL_ATLAS) as Texture2D
+    if texture == null:
+        push_warning("Atlas alat tidak ditemukan: " + TOOL_ATLAS)
+        return
+    var tool_sprite := Sprite2D.new()
+    tool_sprite.texture = texture
+    tool_sprite.region_enabled = true
+    tool_sprite.region_rect = TOOL_REGIONS[tool_type]
+    tool_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    tool_sprite.position = Vector2(13, -10)
+    tool_sprite.rotation = -0.9
+    tool_sprite.z_index = 20
+    _player.add_child(tool_sprite)
+    var tween := _player.create_tween()
+    tween.set_parallel(true)
+    tween.tween_property(tool_sprite, "rotation", 0.85, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    tween.tween_property(tool_sprite, "position", Vector2(20, 2), 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    tween.tween_property(tool_sprite, "modulate:a", 0.0, 0.18).set_delay(0.12)
+    tween.finished.connect(tool_sprite.queue_free)
 
 func _deplete() -> void:
     _busy = true

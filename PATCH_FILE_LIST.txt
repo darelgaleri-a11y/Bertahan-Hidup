@@ -1,8 +1,10 @@
-NEW  scripts/resources/resource_gather_node.gd
-NEW  assets/sprites/resources/resource_nodes_atlas_32px.png
-NEW  assets/sprites/resources/resource_nodes_manifest.json
-NEW  docs/ASSET_021_RESOURCE_GATHERING.md
-UPDATE scripts/regions/forest_environment.gd
-UPDATE scripts/regions/cave_environment.gd
-UPDATE scripts/regions/danger_zone_environment.gd
-UPDATE data/item_catalog.json
+PATCH ASSET 022 — FILE YANG DITAMBAHKAN/DIUPDATE
+- scripts/resources/resource_gather_node.gd (UPDATE)
+- scripts/regions/forest_environment.gd (UPDATE)
+- scripts/regions/cave_environment.gd (UPDATE)
+- scripts/regions/danger_zone_environment.gd (UPDATE)
+- assets/sprites/tools/tool_swing_atlas_32px.png (BARU)
+- assets/sprites/tools/tool_swing_manifest.json (BARU)
+- docs/ASSET_022_RESOURCE_TOOLS.md (BARU)
+
+Ekstrak seluruh isi ZIP ke root proyek Godot, yaitu folder yang berisi project.godot.

@@ -6,19 +6,19 @@ const RESOURCE_NODE_SCRIPT = preload("res://scripts/resources/resource_gather_no
 const RESOURCE_ATLAS := "res://assets/sprites/resources/resource_nodes_atlas_32px.png"
 
 func _ready() -> void:
-    _create_gatherable("charred_wood", "Kayu Hangus", Vector2(220, 315), Rect2(0, 0, 32, 32), 1, 2, 2, 28.0)
-    _create_gatherable("blackstone", "Batu Hitam", Vector2(345, 390), Rect2(32, 0, 32, 32), 1, 2, 3, 25.0)
-    _create_gatherable("ember_crystal", "Kristal Bara", Vector2(365, 145), Rect2(160, 0, 32, 32), 1, 2, 2, 35.0)
-    _create_gatherable("ancient_shard", "Pecahan Kuno", Vector2(500, 420), Rect2(128, 0, 32, 32), 1, 1, 1, 45.0)
+    _create_gatherable("charred_wood", "Kayu Hangus", Vector2(220, 315), Rect2(0, 0, 32, 32), 1, 2, 2, 28.0, "axe")
+    _create_gatherable("blackstone", "Batu Hitam", Vector2(345, 390), Rect2(32, 0, 32, 32), 1, 2, 3, 25.0, "pickaxe")
+    _create_gatherable("ember_crystal", "Kristal Bara", Vector2(365, 145), Rect2(160, 0, 32, 32), 1, 2, 2, 35.0, "pickaxe")
+    _create_gatherable("ancient_shard", "Pecahan Kuno", Vector2(500, 420), Rect2(128, 0, 32, 32), 1, 1, 1, 45.0, "pickaxe")
     RegionManager.region_changed.connect(_on_region_changed)
     _sync_region(RegionManager.current_region_id)
 
-func _create_gatherable(item_id: String, title: String, at: Vector2, rect: Rect2, low: int, high: int, charges: int, respawn: float) -> void:
+func _create_gatherable(item_id: String, title: String, at: Vector2, rect: Rect2, low: int, high: int, charges: int, respawn: float, tool: String) -> void:
     var node := Node2D.new()
     node.name = "Gather_" + item_id
     node.position = at
     node.set_script(RESOURCE_NODE_SCRIPT)
-    node.call("configure", item_id, title, RESOURCE_ATLAS, rect, low, high, charges, respawn)
+    node.call("configure", item_id, title, RESOURCE_ATLAS, rect, low, high, charges, respawn, tool)
     add_child(node)
 
 func _on_region_changed(region_id: String) -> void:
