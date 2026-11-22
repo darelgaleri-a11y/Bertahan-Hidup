@@ -1,0 +1,122 @@
+{
+  "name": "Bertahan Hidup - Cave Props Asset 019",
+  "style": "Detailed Pixel Art",
+  "base_tile_size": [
+    16,
+    16
+  ],
+  "atlas_path": "assets/sprites/cave/cave_props_atlas_32px.png",
+  "atlas_size": [
+    192,
+    64
+  ],
+  "cell_size": [
+    32,
+    32
+  ],
+  "columns": 6,
+  "rows": 2,
+  "sprites": [
+    {
+      "id": "stalagmite",
+      "cell": [
+        0,
+        0
+      ],
+      "role": "obstacle",
+      "collision": "rectangle 12x10"
+    },
+    {
+      "id": "stalactite",
+      "cell": [
+        1,
+        0
+      ],
+      "role": "decoration"
+    },
+    {
+      "id": "rock_pile",
+      "cell": [
+        2,
+        0
+      ],
+      "role": "obstacle",
+      "collision": "rectangle 20x12"
+    },
+    {
+      "id": "blue_crystal",
+      "cell": [
+        3,
+        0
+      ],
+      "role": "resource_node_candidate"
+    },
+    {
+      "id": "purple_crystal",
+      "cell": [
+        4,
+        0
+      ],
+      "role": "resource_node_candidate"
+    },
+    {
+      "id": "cave_mushroom",
+      "cell": [
+        5,
+        0
+      ],
+      "role": "decoration_gatherable_candidate"
+    },
+    {
+      "id": "bones",
+      "cell": [
+        0,
+        1
+      ],
+      "role": "decoration"
+    },
+    {
+      "id": "ancient_pillar",
+      "cell": [
+        1,
+        1
+      ],
+      "role": "obstacle",
+      "collision": "rectangle 18x18"
+    },
+    {
+      "id": "ore_node",
+      "cell": [
+        2,
+        1
+      ],
+      "role": "resource_node_candidate",
+      "collision": "rectangle 22x12"
+    },
+    {
+      "id": "rubble",
+      "cell": [
+        3,
+        1
+      ],
+      "role": "obstacle",
+      "collision": "rectangle 20x12"
+    },
+    {
+      "id": "torch_stand",
+      "cell": [
+        4,
+        1
+      ],
+      "role": "decoration"
+    },
+    {
+      "id": "cave_entrance",
+      "cell": [
+        5,
+        1
+      ],
+      "role": "wayfinding"
+    }
+  ]
+}

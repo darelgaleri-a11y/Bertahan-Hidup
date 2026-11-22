@@ -1,0 +1,144 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/tiles/region/cave_map_layout.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cave/cave_props_atlas_32px.png" id="2"]
+[ext_resource type="Script" path="res://scripts/regions/cave_environment.gd" id="3"]
+
+[sub_resource type="RectangleShape2D" id="StalagmiteCollision"]
+size = Vector2(12, 10)
+[sub_resource type="RectangleShape2D" id="RockCollision"]
+size = Vector2(20, 12)
+[sub_resource type="RectangleShape2D" id="PillarCollision"]
+size = Vector2(18, 18)
+[sub_resource type="RectangleShape2D" id="OreCollision"]
+size = Vector2(22, 12)
+[sub_resource type="RectangleShape2D" id="RubbleCollision"]
+size = Vector2(20, 12)
+
+[node name="CaveEnvironment" type="Node2D"]
+visible = false
+script = ExtResource("3")
+
+[node name="GroundVisual" type="Sprite2D" parent="."]
+position = Vector2(480, 272)
+texture = ExtResource("1")
+texture_filter = 1
+z_index = 0
+
+[node name="Props" type="Node2D" parent="."]
+
+[node name="StalagmiteNorth" type="Sprite2D" parent="Props"]
+position = Vector2(150, 105)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 0, 32, 32)
+texture_filter = 1
+z_index = 2
+[node name="StalagmiteNorthBody" type="StaticBody2D" parent="Props"]
+position = Vector2(150, 116)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/StalagmiteNorthBody"]
+shape = SubResource("StalagmiteCollision")
+
+[node name="Stalactite" type="Sprite2D" parent="Props"]
+position = Vector2(330, 75)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(32, 0, 32, 32)
+texture_filter = 1
+z_index = 2
+
+[node name="RockPile" type="Sprite2D" parent="Props"]
+position = Vector2(300, 385)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(64, 0, 32, 32)
+texture_filter = 1
+[node name="RockPileBody" type="StaticBody2D" parent="Props"]
+position = Vector2(300, 395)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/RockPileBody"]
+shape = SubResource("RockCollision")
+
+[node name="BlueCrystal" type="Sprite2D" parent="Props"]
+position = Vector2(700, 130)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(96, 0, 32, 32)
+texture_filter = 1
+
+[node name="PurpleCrystal" type="Sprite2D" parent="Props"]
+position = Vector2(835, 300)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(128, 0, 32, 32)
+texture_filter = 1
+
+[node name="CaveMushrooms" type="Sprite2D" parent="Props"]
+position = Vector2(170, 440)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(160, 0, 32, 32)
+texture_filter = 1
+
+[node name="Bones" type="Sprite2D" parent="Props"]
+position = Vector2(470, 430)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 32, 32, 32)
+texture_filter = 1
+
+[node name="AncientPillar" type="Sprite2D" parent="Props"]
+position = Vector2(555, 170)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(32, 32, 32, 32)
+texture_filter = 1
+[node name="AncientPillarBody" type="StaticBody2D" parent="Props"]
+position = Vector2(555, 181)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/AncientPillarBody"]
+shape = SubResource("PillarCollision")
+
+[node name="OreNode" type="Sprite2D" parent="Props"]
+position = Vector2(760, 430)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(64, 32, 32, 32)
+texture_filter = 1
+[node name="OreNodeBody" type="StaticBody2D" parent="Props"]
+position = Vector2(760, 441)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/OreNodeBody"]
+shape = SubResource("OreCollision")
+
+[node name="Rubble" type="Sprite2D" parent="Props"]
+position = Vector2(430, 115)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(96, 32, 32, 32)
+texture_filter = 1
+[node name="RubbleBody" type="StaticBody2D" parent="Props"]
+position = Vector2(430, 125)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/RubbleBody"]
+shape = SubResource("RubbleCollision")
+
+[node name="TorchStand" type="Sprite2D" parent="Props"]
+position = Vector2(230, 250)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(128, 32, 32, 32)
+texture_filter = 1
+
+[node name="CaveEntrance" type="Sprite2D" parent="Props"]
+position = Vector2(480, 490)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(160, 32, 32, 32)
+texture_filter = 1
