@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/forest/forest_props_atlas_32px.png" id="1"]
+
+[node name="ForestPropsPreview" type="Node2D"]
+
+[node name="OakTree" type="Sprite2D" parent="."]
+position = Vector2(64, 72)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(0, 0, 32, 32)
+texture_filter = 1
+
+[node name="PineTree" type="Sprite2D" parent="."]
+position = Vector2(160, 72)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(32, 0, 32, 32)
+texture_filter = 1
+
+[node name="FallenLog" type="Sprite2D" parent="."]
+position = Vector2(256, 72)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(64, 0, 32, 32)
+texture_filter = 1
+
+[node name="Boulder" type="Sprite2D" parent="."]
+position = Vector2(352, 72)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(96, 0, 32, 32)
+texture_filter = 1
+
+[node name="TreeStump" type="Sprite2D" parent="."]
+position = Vector2(448, 72)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(128, 0, 32, 32)
+texture_filter = 1
+
+[node name="Fern" type="Sprite2D" parent="."]
+position = Vector2(544, 72)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(160, 0, 32, 32)
+texture_filter = 1
+
+[node name="MushroomCluster" type="Sprite2D" parent="."]
+position = Vector2(64, 176)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(0, 32, 32, 32)
+texture_filter = 1
+
+[node name="BlueCrystal" type="Sprite2D" parent="."]
+position = Vector2(160, 176)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(32, 32, 32, 32)
+texture_filter = 1
+
+[node name="ThornBush" type="Sprite2D" parent="."]
+position = Vector2(256, 176)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(64, 32, 32, 32)
+texture_filter = 1
+
+[node name="HollowStump" type="Sprite2D" parent="."]
+position = Vector2(352, 176)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(96, 32, 32, 32)
+texture_filter = 1
+
+[node name="TrailSign" type="Sprite2D" parent="."]
+position = Vector2(448, 176)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(128, 32, 32, 32)
+texture_filter = 1
+
+[node name="Campfire" type="Sprite2D" parent="."]
+position = Vector2(544, 176)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(160, 32, 32, 32)
+texture_filter = 1

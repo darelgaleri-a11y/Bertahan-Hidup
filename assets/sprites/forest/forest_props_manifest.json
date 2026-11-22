@@ -1,0 +1,129 @@
+{
+  "name": "Bertahan Hidup - Forest Props Asset 017",
+  "style": "Detailed Pixel Art",
+  "base_tile_size": [
+    16,
+    16
+  ],
+  "atlas_path": "assets/sprites/forest/forest_props_atlas_32px.png",
+  "atlas_size": [
+    192,
+    64
+  ],
+  "cell_size": [
+    32,
+    32
+  ],
+  "columns": 6,
+  "rows": 2,
+  "sprites": [
+    {
+      "id": "oak_tree",
+      "cell": [
+        0,
+        0
+      ],
+      "role": "decoration_obstacle",
+      "collision": "rectangle 18x10 around trunk"
+    },
+    {
+      "id": "pine_tree",
+      "cell": [
+        1,
+        0
+      ],
+      "role": "decoration_obstacle",
+      "collision": "rectangle 10x10 around trunk"
+    },
+    {
+      "id": "fallen_log",
+      "cell": [
+        2,
+        0
+      ],
+      "role": "obstacle",
+      "collision": "rectangle 22x9"
+    },
+    {
+      "id": "boulder",
+      "cell": [
+        3,
+        0
+      ],
+      "role": "obstacle",
+      "collision": "rectangle 22x12"
+    },
+    {
+      "id": "tree_stump",
+      "cell": [
+        4,
+        0
+      ],
+      "role": "decoration_obstacle",
+      "collision": "rectangle 13x10"
+    },
+    {
+      "id": "fern",
+      "cell": [
+        5,
+        0
+      ],
+      "role": "decoration",
+      "collision": "none"
+    },
+    {
+      "id": "mushroom_cluster",
+      "cell": [
+        0,
+        1
+      ],
+      "role": "decoration_gatherable_candidate",
+      "collision": "none"
+    },
+    {
+      "id": "blue_crystal",
+      "cell": [
+        1,
+        1
+      ],
+      "role": "resource_node_candidate",
+      "collision": "rectangle 10x12"
+    },
+    {
+      "id": "thorn_bush",
+      "cell": [
+        2,
+        1
+      ],
+      "role": "obstacle_hazard_candidate",
+      "collision": "rectangle 22x12"
+    },
+    {
+      "id": "hollow_stump",
+      "cell": [
+        3,
+        1
+      ],
+      "role": "decoration_obstacle",
+      "collision": "rectangle 16x12"
+    },
+    {
+      "id": "trail_sign",
+      "cell": [
+        4,
+        1
+      ],
+      "role": "wayfinding",
+      "collision": "rectangle 8x6"
+    },
+    {
+      "id": "campfire",
+      "cell": [
+        5,
+        1
+      ],
+      "role": "decoration",
+      "collision": "none"
+    }
+  ]
+}
