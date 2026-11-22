@@ -1,10 +1,132 @@
-[gd_scene load_steps=2 format=3]
-
+[gd_scene load_steps=11 format=3]
 [ext_resource type="Texture2D" path="res://assets/tiles/region/forest_map_layout.png" id="1"]
-
-[node name="ForestMapPreview" type="Node2D"]
-
+[ext_resource type="Texture2D" path="res://assets/sprites/forest/forest_props_atlas_32px.png" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/monsters/wolf.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/regions/forest_environment.gd" id="4"]
+[sub_resource type="RectangleShape2D" id="OakCollision"]
+size = Vector2(18, 10)
+[sub_resource type="RectangleShape2D" id="PineCollision"]
+size = Vector2(10, 10)
+[sub_resource type="RectangleShape2D" id="LogCollision"]
+size = Vector2(22, 9)
+[sub_resource type="RectangleShape2D" id="BoulderCollision"]
+size = Vector2(22, 12)
+[sub_resource type="RectangleShape2D" id="ThornCollision"]
+size = Vector2(22, 12)
+[node name="ForestEnvironment" type="Node2D"]
+visible = false
+script = ExtResource("4")
 [node name="GroundVisual" type="Sprite2D" parent="."]
 position = Vector2(480, 272)
 texture = ExtResource("1")
 texture_filter = 1
+z_index = 0
+[node name="Props" type="Node2D" parent="."]
+[node name="OakTree" type="Sprite2D" parent="Props"]
+position = Vector2(120, 112)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 0, 32, 32)
+texture_filter = 1
+z_index = 2
+[node name="OakTreeBody" type="StaticBody2D" parent="Props"]
+position = Vector2(120, 123)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/OakTreeBody"]
+shape = SubResource("OakCollision")
+[node name="PineTree" type="Sprite2D" parent="Props"]
+position = Vector2(820, 100)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(32, 0, 32, 32)
+texture_filter = 1
+z_index = 2
+[node name="PineTreeBody" type="StaticBody2D" parent="Props"]
+position = Vector2(820, 111)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/PineTreeBody"]
+shape = SubResource("PineCollision")
+[node name="FallenLog" type="Sprite2D" parent="Props"]
+position = Vector2(300, 205)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(64, 0, 32, 32)
+texture_filter = 1
+[node name="FallenLogBody" type="StaticBody2D" parent="Props"]
+position = Vector2(300, 214)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/FallenLogBody"]
+shape = SubResource("LogCollision")
+[node name="Boulder" type="Sprite2D" parent="Props"]
+position = Vector2(680, 350)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(96, 0, 32, 32)
+texture_filter = 1
+[node name="BoulderBody" type="StaticBody2D" parent="Props"]
+position = Vector2(680, 360)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/BoulderBody"]
+shape = SubResource("BoulderCollision")
+[node name="TreeStump" type="Sprite2D" parent="Props"]
+position = Vector2(190, 390)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(128, 0, 32, 32)
+texture_filter = 1
+[node name="Fern" type="Sprite2D" parent="Props"]
+position = Vector2(430, 130)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(160, 0, 32, 32)
+texture_filter = 1
+[node name="MushroomCluster" type="Sprite2D" parent="Props"]
+position = Vector2(520, 390)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 32, 32, 32)
+texture_filter = 1
+[node name="BlueCrystal" type="Sprite2D" parent="Props"]
+position = Vector2(750, 210)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(32, 32, 32, 32)
+texture_filter = 1
+[node name="ThornBush" type="Sprite2D" parent="Props"]
+position = Vector2(390, 440)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(64, 32, 32, 32)
+texture_filter = 1
+[node name="ThornBushBody" type="StaticBody2D" parent="Props"]
+position = Vector2(390, 450)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Props/ThornBushBody"]
+shape = SubResource("ThornCollision")
+[node name="HollowStump" type="Sprite2D" parent="Props"]
+position = Vector2(570, 170)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(96, 32, 32, 32)
+texture_filter = 1
+[node name="TrailSign" type="Sprite2D" parent="Props"]
+position = Vector2(460, 300)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(128, 32, 32, 32)
+texture_filter = 1
+[node name="Campfire" type="Sprite2D" parent="Props"]
+position = Vector2(210, 270)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(160, 32, 32, 32)
+texture_filter = 1
+[node name="ForestWolfNorth" parent="." instance=ExtResource("3")]
+position = Vector2(610, 160)
+[node name="ForestWolfSouth" parent="." instance=ExtResource("3")]
+position = Vector2(760, 420)
