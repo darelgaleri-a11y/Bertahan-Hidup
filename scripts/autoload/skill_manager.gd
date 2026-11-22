@@ -24,28 +24,12 @@ const SKILLS := {
 }
 const SPECIALIZATIONS := {
     "power_strike": {
-        "berserker": {
-            "name": "Berserker",
-            "description": "Damage Power Strike meningkat 25%.",
-            "damage_multiplier": 1.25
-        },
-        "focused": {
-            "name": "Focused",
-            "description": "Biaya stamina Power Strike berkurang 25%.",
-            "stamina_multiplier": 0.75
-        }
+        "berserker": {"name": "Berserker", "description": "Damage Power Strike meningkat 25%.", "damage_multiplier": 1.25},
+        "focused": {"name": "Focused", "description": "Biaya stamina Power Strike berkurang 25%.", "stamina_multiplier": 0.75}
     },
     "recovery": {
-        "renewal": {
-            "name": "Renewal",
-            "description": "Jumlah pemulihan Recovery meningkat 30%.",
-            "healing_multiplier": 1.30
-        },
-        "efficient": {
-            "name": "Efficient",
-            "description": "Cooldown Recovery berkurang 25%.",
-            "cooldown_multiplier": 0.75
-        }
+        "renewal": {"name": "Renewal", "description": "Jumlah pemulihan Recovery meningkat 30%.", "healing_multiplier": 1.30},
+        "efficient": {"name": "Efficient", "description": "Cooldown Recovery berkurang 25%.", "cooldown_multiplier": 0.75}
     }
 }
 
@@ -56,10 +40,7 @@ var _skill_progress: Dictionary = {
     "power_strike": {"level": 1, "uses": 0},
     "recovery": {"level": 1, "uses": 0}
 }
-var _specializations: Dictionary = {
-    "power_strike": "",
-    "recovery": ""
-}
+var _specializations: Dictionary = {"power_strike": "", "recovery": ""}
 var _specialization_layer: CanvasLayer
 var _specialization_panel: PanelContainer
 var _specialization_content: VBoxContainer
@@ -95,7 +76,7 @@ func get_max_stamina() -> float:
     return float(StatsManager.get_stat("stamina")) * 10.0
 
 func get_stamina_regen() -> float:
-    return 2.0 + float(StatsManager.get_stat("ability")) * 0.1
+    return 2.0 + float(StatsManager.get_stat("ability")) * 0.1 + SkillPassiveManager.get_stamina_regen_bonus()
 
 func get_stamina() -> float:
     return stamina
@@ -109,9 +90,7 @@ func get_skill_uses(skill_id: String) -> int:
     return maxi(0, int(data.get("uses", 0)))
 
 func is_unlocked(skill_id: String) -> bool:
-    if not SKILLS.has(skill_id):
-        return false
-    return GameManager.job_level >= int(SKILLS[skill_id].get("unlock_level", 99))
+    return SKILLS.has(skill_id) and GameManager.job_level >= int(SKILLS[skill_id].get("unlock_level", 99))
 
 func get_cooldown(skill_id: String) -> float:
     return maxf(0.0, float(_cooldowns.get(skill_id, 0.0)))
@@ -129,23 +108,16 @@ func get_specialization_status(skill_id: String) -> Dictionary:
         option["id"] = str(specialization_id)
         option["selected"] = str(specialization_id) == selected
         options.append(option)
-    return {
-        "selected": selected,
-        "available": get_skill_level(skill_id) >= 2,
-        "options": options
-    }
+    return {"selected": selected, "available": get_skill_level(skill_id) >= 2, "options": options}
 
 func get_skill_status(skill_id: String) -> Dictionary:
     if not SKILLS.has(skill_id):
         return {}
     var info: Dictionary = SKILLS[skill_id]
     return {
-        "name": str(info["name"]),
-        "description": str(info["description"]),
-        "level": get_skill_level(skill_id),
-        "uses": get_skill_uses(skill_id),
-        "unlocked": is_unlocked(skill_id),
-        "cooldown": get_cooldown(skill_id),
+        "name": str(info["name"]), "description": str(info["description"]),
+        "level": get_skill_level(skill_id), "uses": get_skill_uses(skill_id),
+        "unlocked": is_unlocked(skill_id), "cooldown": get_cooldown(skill_id),
         "stamina_cost": _get_effective_stamina_cost(skill_id),
         "specialization": get_specialization(skill_id)
     }
@@ -188,12 +160,9 @@ func cast_skill(skill_id: String, player: Node, target: Node = null) -> Dictiona
         return {"ok": false, "message": "Skill belum terbuka. Naikkan Job Level terlebih dahulu."}
     if get_cooldown(skill_id) > 0.0:
         return {"ok": false, "message": "Skill masih cooldown %.1f detik." % get_cooldown(skill_id)}
-
-    var info: Dictionary = SKILLS[skill_id]
     var cost := _get_effective_stamina_cost(skill_id)
     if stamina < cost:
         return {"ok": false, "message": "Stamina tidak cukup."}
-
     var level := get_skill_level(skill_id)
     var ability_bonus := StatsManager.get_stat("ability") - 5
     var specialization_id := get_specialization(skill_id)
@@ -217,7 +186,6 @@ func cast_skill(skill_id: String, player: Node, target: Node = null) -> Dictiona
         if restored <= 0:
             return {"ok": false, "message": "HP sudah penuh."}
         result_message = "Recovery memulihkan %d HP." % restored
-
     stamina = maxf(0.0, stamina - cost)
     _cooldowns[skill_id] = _get_effective_cooldown(skill_id)
     _record_skill_use(skill_id)
@@ -243,11 +211,7 @@ func restore_stamina(amount: float) -> void:
     stamina_changed.emit(stamina, get_max_stamina())
 
 func get_save_data() -> Dictionary:
-    return {
-        "stamina": stamina,
-        "skill_progress": _skill_progress.duplicate(true),
-        "specializations": _specializations.duplicate(true)
-    }
+    return {"stamina": stamina, "skill_progress": _skill_progress.duplicate(true), "specializations": _specializations.duplicate(true)}
 
 func load_save_data(data: Dictionary) -> void:
     var maximum := get_max_stamina()
@@ -256,7 +220,6 @@ func load_save_data(data: Dictionary) -> void:
         stamina = clampf(float(raw_stamina), 0.0, maximum)
     else:
         stamina = maximum
-
     var raw_progress = data.get("skill_progress", {})
     var clean: Dictionary = {}
     if typeof(raw_progress) == TYPE_DICTIONARY:
@@ -272,7 +235,6 @@ func load_save_data(data: Dictionary) -> void:
         for skill_id in SKILLS.keys():
             clean[skill_id] = {"level": 1, "uses": 0}
     _skill_progress = clean
-
     var raw_specializations = data.get("specializations", {})
     var clean_specializations := {"power_strike": "", "recovery": ""}
     if typeof(raw_specializations) == TYPE_DICTIONARY:
@@ -281,7 +243,6 @@ func load_save_data(data: Dictionary) -> void:
             if SPECIALIZATIONS[skill_id].has(candidate) and get_skill_level(skill_id) >= 2:
                 clean_specializations[skill_id] = candidate
     _specializations = clean_specializations
-
     _cooldowns = {"power_strike": 0.0, "recovery": 0.0}
     _last_max_stamina = maximum
     stamina_changed.emit(stamina, get_max_stamina())
@@ -292,7 +253,6 @@ func _create_specialization_ui() -> void:
     _specialization_layer = CanvasLayer.new()
     _specialization_layer.name = "SkillSpecializationLayer"
     add_child(_specialization_layer)
-
     var touch_button := Button.new()
     touch_button.name = "SpecializationTouchButton"
     touch_button.text = "TALENTA"
@@ -301,7 +261,6 @@ func _create_specialization_ui() -> void:
     touch_button.visible = OS.has_feature("mobile") or DisplayServer.is_touchscreen_available()
     touch_button.pressed.connect(_toggle_specialization_ui)
     _specialization_layer.add_child(touch_button)
-
     _specialization_panel = PanelContainer.new()
     _specialization_panel.name = "SpecializationPanel"
     _specialization_panel.position = Vector2(230, 75)
@@ -309,7 +268,6 @@ func _create_specialization_ui() -> void:
     _specialization_panel.custom_minimum_size = Vector2(500, 380)
     _specialization_panel.visible = false
     _specialization_layer.add_child(_specialization_panel)
-
     _specialization_content = VBoxContainer.new()
     _specialization_panel.add_child(_specialization_content)
     _refresh_specialization_ui()
@@ -327,7 +285,6 @@ func _refresh_specialization_ui() -> void:
     for child in _specialization_content.get_children():
         _specialization_content.remove_child(child)
         child.free()
-
     var header := HBoxContainer.new()
     _specialization_content.add_child(header)
     var title := Label.new()
@@ -338,19 +295,16 @@ func _refresh_specialization_ui() -> void:
     close_button.text = "TUTUP"
     close_button.pressed.connect(_toggle_specialization_ui)
     header.add_child(close_button)
-
     var intro := Label.new()
     intro.text = "Skill harus mencapai Level 2. Pilihan bersifat permanen."
     intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     _specialization_content.add_child(intro)
-
     for skill_id in ["power_strike", "recovery"]:
         var row := VBoxContainer.new()
         _specialization_content.add_child(row)
         var skill_label := Label.new()
         skill_label.text = "%s — Level %d" % [str(SKILLS[skill_id]["name"]), get_skill_level(skill_id)]
         row.add_child(skill_label)
-
         var selected_id := get_specialization(skill_id)
         for specialization_id in SPECIALIZATIONS[skill_id]:
             var option: Dictionary = SPECIALIZATIONS[skill_id][specialization_id]

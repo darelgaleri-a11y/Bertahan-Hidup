@@ -1,8 +1,12 @@
-ASSET 028 — SKILL SPECIALIZATION
-Updated:
-- scripts/autoload/skill_manager.gd
-Added:
-- docs/ASSET_028_SKILL_SPECIALIZATION.md
+ASSET 029 — SKILL PASSIVE BONUSES & CHARACTER BUILD
 
-Installation: extract this ZIP into the Godot project root and overwrite the listed script.
-No project.godot change is required; SkillManager is already registered as an Autoload.
+Updated:
+- project.godot
+- scripts/player/player.gd
+- scripts/autoload/skill_manager.gd
+
+Added:
+- scripts/autoload/skill_passive_manager.gd
+- docs/ASSET_029_SKILL_PASSIVE_BONUSES.md
+
+Install by extracting into the Godot project root. Back up the project first.
