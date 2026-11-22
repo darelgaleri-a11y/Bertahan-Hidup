@@ -1,12 +1,13 @@
-ASSET 029 — SKILL PASSIVE BONUSES & CHARACTER BUILD
+ASSET 030 — FILE YANG DITAMBAHKAN / DIPERBARUI
 
-Updated:
+DIPERBARUI:
 - project.godot
-- scripts/player/player.gd
-- scripts/autoload/skill_manager.gd
+- scripts/autoload/stats_manager.gd
+- scripts/autoload/save_manager.gd
 
-Added:
-- scripts/autoload/skill_passive_manager.gd
-- docs/ASSET_029_SKILL_PASSIVE_BONUSES.md
+DITAMBAHKAN:
+- scripts/autoload/character_build_ui.gd
+- docs/ASSET_030_CHARACTER_BUILD_STAT_ALLOCATION.md
 
-Install by extracting into the Godot project root. Back up the project first.
+Tidak ada file asset gambar/audio baru pada tahap ini. Tidak ada file lain dari repositori yang disertakan.
+Backup file proyek sebelum menimpa file yang sama.
